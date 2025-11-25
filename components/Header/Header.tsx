@@ -5,11 +5,6 @@ import css from "./Header.module.css";
 import AuthNavigation from "../AuthNavigation/AuthNavigation";
 
 export default function Header() {
-  const userEmail = ""; 
-  const handleLogout = () => {
-    console.log("Logout clicked");
-  };
-
   return (
     <header className={css.header}>
       <Link href="/" aria-label="Home">
@@ -23,7 +18,8 @@ export default function Header() {
           <li>
             <Link href="/notes/filter/all">Notes</Link>
           </li>
-          <AuthNavigation userEmail={userEmail} onLogout={handleLogout} />
+
+          <AuthNavigation />
         </ul>
       </nav>
     </header>

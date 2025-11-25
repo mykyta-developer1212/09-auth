@@ -8,9 +8,3 @@ export interface Note {
   updatedAt: string;
   tag: NoteTag;
 }
-
-
-
-
-
-

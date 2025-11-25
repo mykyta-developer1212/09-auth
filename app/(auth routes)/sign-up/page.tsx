@@ -7,7 +7,6 @@ import css from "./SignUp.module.css";
 
 export default function SignUpPage() {
   const router = useRouter();
-
   const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -19,17 +18,20 @@ export default function SignUpPage() {
     const password = formData.get("password") as string;
 
     try {
-      await register({ email, password });
-      router.push("/profile"); 
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Registration failed");
+      await register(email, password);
+      router.push("/profile");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Registration failed");
+      }
     }
   };
 
   return (
     <main className={css.mainContent}>
       <h1 className={css.formTitle}>Sign up</h1>
-
       <form className={css.form} onSubmit={handleSubmit}>
         <div className={css.formGroup}>
           <label htmlFor="email">Email</label>
@@ -42,9 +44,7 @@ export default function SignUpPage() {
         </div>
 
         <div className={css.actions}>
-          <button type="submit" className={css.submitButton}>
-            Register
-          </button>
+          <button type="submit" className={css.submitButton}>Register</button>
         </div>
 
         {error && <p className={css.error}>{error}</p>}

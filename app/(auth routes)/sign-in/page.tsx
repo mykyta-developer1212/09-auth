@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { login } from "@/lib/api/clientApi";
 import { useRouter } from "next/navigation";
-import css from "./SignIn.module.css";
+import css from "./SignInPage.module.css";
 
 export default function SignInPage() {
   const router = useRouter();
@@ -18,11 +18,14 @@ export default function SignInPage() {
     const password = formData.get("password") as string;
 
     try {
-      await login({ email, password });
-
+      await login(email, password);
       router.push("/profile");
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Login failed");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Login failed");
+      }
     }
   };
 
@@ -42,9 +45,7 @@ export default function SignInPage() {
         </div>
 
         <div className={css.actions}>
-          <button type="submit" className={css.submitButton}>
-            Log in
-          </button>
+          <button type="submit" className={css.submitButton}>Log in</button>
         </div>
 
         <p className={css.error}>{error}</p>

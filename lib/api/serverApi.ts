@@ -1,14 +1,32 @@
+import axios from "axios";
 import { cookies } from "next/headers";
-import { nextServer } from "./api";
+
+const baseURL = process.env.NEXT_PUBLIC_API_URL
+  ? `${process.env.NEXT_PUBLIC_API_URL}/api`
+  : "http://localhost:3000/api";
+
+export const nextServer = axios.create({
+  baseURL,
+  withCredentials: true,
+});
 
 export const checkServerSession = async () => {
   const cookieStore = await cookies();
+  const res = await nextServer.get("/auth/session", {
+    headers: {
+      Cookie: cookieStore.toString(),
+    },
+    validateStatus: () => true,
+  });
+  return res;
+};
 
-  const res = await nextServer.get('/auth/session', {
+export const getServerMe = async () => {
+  const cookieStore = await cookies();
+  const res = await nextServer.get("/users/me", {
     headers: {
       Cookie: cookieStore.toString(),
     },
   });
-
-  return res;
+  return res.data;
 };

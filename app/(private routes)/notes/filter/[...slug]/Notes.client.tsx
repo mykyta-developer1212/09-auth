@@ -1,16 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, HydrationBoundary } from "@tanstack/react-query";
 import NotesList from "@/components/NoteList/NoteList";
 import SearchBox from "@/components/SearchBox/SearchBox";
 import Pagination from "@/components/Pagination/Pagination";
 import { fetchNotes, FetchNotesResponse } from "@/lib/api/api";
-import type { NoteTag, Note } from "@/types/note";
+import type { NoteTag } from "@/types/note";
 import Link from "next/link";
 
 interface NotesClientProps {
   tag?: NoteTag;
+  dehydratedState?: unknown;
 }
 
 export default function NotesClient({ tag }: NotesClientProps) {
@@ -23,6 +24,7 @@ export default function NotesClient({ tag }: NotesClientProps) {
       setDebouncedSearch(search);
       setPage(1);
     }, 400);
+
     return () => clearTimeout(timer);
   }, [search]);
 
@@ -51,11 +53,7 @@ export default function NotesClient({ tag }: NotesClientProps) {
       {data && <NotesList notes={data.notes} />}
 
       {data && data.totalPages > 1 && (
-        <Pagination
-          currentPage={page}
-          pageCount={data.totalPages}
-          onPageChange={setPage}
-        />
+        <Pagination currentPage={page} pageCount={data.totalPages} onPageChange={setPage} />
       )}
     </div>
   );

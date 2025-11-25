@@ -11,6 +11,7 @@
   "dependencies": {
     "@tanstack/react-query": "^5.90.10",
     "axios": "^1.13.2",
+    "cookie": "^1.0.2",
     "formik": "^2.4.9",
     "lodash.debounce": "^4.0.8",
     "next": "^16.0.3",
@@ -21,6 +22,7 @@
     "zustand": "^5.0.8"
   },
   "devDependencies": {
+    "@types/cookie": "^0.6.0",
     "@types/lodash.debounce": "^4.0.9",
     "@types/node": "^20.19.25",
     "@types/react": "^19.2.6",
