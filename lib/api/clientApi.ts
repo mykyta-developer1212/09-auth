@@ -1,21 +1,49 @@
-import { axiosInstance } from "./api";
+import axios from "axios";
 
-export const login = async (email: string, password: string) => {
-  const { data } = await axiosInstance.post("/auth/login", { email, password });
-  return data;
-};
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
-export const register = async (email: string, password: string) => {
-  const { data } = await axiosInstance.post("/auth/register", { email, password });
-  return data;
-};
+export interface Note {
+  id: string;
+  title: string;
+  content: string;
+  tag: string;
+}
 
-export const getMe = async () => {
-  const { data } = await axiosInstance.get("/users/me");
-  return data;
-};
+export interface User {
+  id: string;
+  username: string;
+  email: string;
+  avatar: string;
+}
 
-export const updateMe = async (updates: { email?: string; password?: string }) => {
-  const { data } = await axiosInstance.put("/users/me", updates);
+export async function fetchNoteById(id: string): Promise<Note> {
+  const { data } = await axios.get<Note>(`${API_URL}/notes/${id}`);
   return data;
-};
+}
+
+export async function login(email: string, password: string) {
+  const { data } = await axios.post(`${API_URL}/auth/login`, { email, password });
+  return data;
+}
+
+export async function register(email: string, password: string) {
+  const { data } = await axios.post(`${API_URL}/auth/register`, { email, password });
+  return data;
+}
+
+export async function getMe(): Promise<User> {
+  const { data } = await axios.get<User>(`${API_URL}/users/me`);
+  return data;
+}
+
+interface UpdateMePayload {
+  email?: string;
+  password?: string;
+  username?: string;
+  avatar?: string;
+}
+
+export async function updateMe(payload: UpdateMePayload): Promise<User> {
+  const { data } = await axios.patch<User>(`${API_URL}/users/me`, payload);
+  return data;
+}

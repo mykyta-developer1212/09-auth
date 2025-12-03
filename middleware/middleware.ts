@@ -19,7 +19,7 @@ export async function middleware(request: NextRequest) {
   if (!accessToken) {
     if (refreshToken) {
       const data = await checkServerSession();
-      const setCookie = data.headers["set-cookie"];
+      const setCookie = data.headers?.["set-cookie"];
 
       if (setCookie) {
         const cookieArray = Array.isArray(setCookie) ? setCookie : [setCookie];
@@ -29,7 +29,7 @@ export async function middleware(request: NextRequest) {
           const options = {
             expires: parsed.Expires ? new Date(parsed.Expires) : undefined,
             path: parsed.Path,
-            maxAge: Number(parsed["Max-Age"]),
+            maxAge: parsed["Max-Age"] ? Number(parsed["Max-Age"]) : undefined,
           };
           if (parsed.accessToken) cookieStore.set("accessToken", parsed.accessToken, options);
           if (parsed.refreshToken) cookieStore.set("refreshToken", parsed.refreshToken, options);
