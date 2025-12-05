@@ -1,55 +1,39 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { login } from "@/lib/api/clientApi";
-import { useRouter } from "next/navigation";
-import css from "./SignInPage.module.css";
+import { useState } from 'react';
+import { clientApi } from '@/lib/api/clientApi'; 
+import { useAuth } from '@/components/AuthProvider/AuthProvider'; 
 
 export default function SignInPage() {
-  const router = useRouter();
-  const [error, setError] = useState("");
+  const { setUser } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-
-    const formData = new FormData(e.currentTarget);
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
-
     try {
-      await login(email, password);
-      router.push("/profile");
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("Login failed");
-      }
+      const res = await clientApi.post('/api/auth/login', { email, password });
+      setUser(res.data);
+    } catch (err) {
+      console.error(err);
     }
   };
 
   return (
-    <main className={css.mainContent}>
-      <form className={css.form} onSubmit={handleSubmit}>
-        <h1 className={css.formTitle}>Sign in</h1>
-
-        <div className={css.formGroup}>
-          <label htmlFor="email">Email</label>
-          <input id="email" type="email" name="email" className={css.input} required />
-        </div>
-
-        <div className={css.formGroup}>
-          <label htmlFor="password">Password</label>
-          <input id="password" type="password" name="password" className={css.input} required />
-        </div>
-
-        <div className={css.actions}>
-          <button type="submit" className={css.submitButton}>Log in</button>
-        </div>
-
-        <p className={css.error}>{error}</p>
-      </form>
-    </main>
+    <form onSubmit={handleSubmit}>
+      <input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="Email"
+      />
+      <input
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        placeholder="Password"
+      />
+      <button type="submit">Sign In</button>
+    </form>
   );
 }

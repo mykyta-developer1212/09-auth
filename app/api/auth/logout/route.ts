@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { realApi } from '@/lib/api/realApi';
+import { api } from '../../api';
 import { cookies } from 'next/headers';
 import { isAxiosError } from 'axios';
 import { logErrorResponse } from '../../_utils/utils';
@@ -7,10 +7,11 @@ import { logErrorResponse } from '../../_utils/utils';
 export async function POST() {
   try {
     const cookieStore = await cookies();
+
     const accessToken = cookieStore.get('accessToken')?.value;
     const refreshToken = cookieStore.get('refreshToken')?.value;
 
-    await realApi.post('auth/logout', null, {
+    await api.post('auth/logout', null, {
       headers: {
         Cookie: `accessToken=${accessToken}; refreshToken=${refreshToken}`,
       },

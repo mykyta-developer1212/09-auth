@@ -1,52 +1,22 @@
-import "./globals.css";
-import Header from "../components/Header/Header";
-import Footer from "../components/Footer/Footer";
-import TanStackProvider from "../components/TanStackProvider/TanStackProvider";
-import { Metadata } from "next";
-import { Roboto } from "next/font/google";
+import './globals.css';
+import { AuthProvider } from '@/components/AuthProvider/AuthProvider';
+import Header from '@/components/Header/Header';
+import Footer from '@/components/Footer/Footer';
 
-const roboto = Roboto({
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
-  variable: "--font-roboto",
-  display: "swap",
-});
-
-export const metadata: Metadata = {
-  title: "NoteHub",
-  description:
-    "NoteHub is a simple and efficient application for managing personal notes, helping you keep your thoughts organized and accessible.",
-  openGraph: {
-    title: "NoteHub",
-    description:
-      "NoteHub is a simple and efficient application for managing personal notes. Organize your thoughts and access them anytime, anywhere.",
-    images: [
-      {
-        url: "https://ac.goit.global/fullstack/react/notehub-og-meta.jpg",
-        width: 1200,
-        height: 630,
-        alt: "NoteHub Open Graph Image",
-      },
-    ],
-  },
+export const metadata = {
+  title: 'Next Notes App',
+  description: 'A simple notes app with Next.js 13',
 };
 
-export default function RootLayout({
-  children,
-  modal,
-}: {
-  children: React.ReactNode;
-  modal: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={roboto.variable}>
+    <html lang="en">
       <body>
-        <TanStackProvider>
+        <AuthProvider>
           <Header />
-          {modal}
-          {children}
+          <main>{children}</main>
           <Footer />
-        </TanStackProvider>
+        </AuthProvider>
       </body>
     </html>
   );

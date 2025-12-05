@@ -10,7 +10,7 @@ export default function NotesLayout({ children, params }: NotesLayoutProps) {
   return (
     <>
       {children}
-      <NotePreviewClient id={params.id} />
+      <NotePreviewClient noteId={params.id} />
     </>
   );
 }

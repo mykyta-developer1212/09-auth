@@ -1,5 +1,6 @@
-import { ReactNode } from "react";
+import '../globals.css'; 
+import React from 'react';
 
-export default function AuthLayout({ children }: { children: ReactNode }) {
-  return <>{children}</>; 
+export default function AuthLayout({ children }: { children: React.ReactNode }) {
+  return <div className="auth-container">{children}</div>;
 }
