@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, ChangeEvent, FormEvent } from 'react';
+import { useRouter } from 'next/navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createNote } from '@/lib/api/clientApi';
-import { Note, NoteTag } from '@/types/note';
-import styles from './NoteForm.module.css';
+import { clientApi } from '@/lib/api/clientApi';
+import { useDraftStore } from '@/lib/draftStore';
+
+const TAGS = ['Todo', 'Work', 'Personal', 'Meeting', 'Shopping'];
 
 interface NoteFormProps {
   onSuccess?: () => void;
@@ -12,54 +13,52 @@ interface NoteFormProps {
 }
 
 export default function NoteForm({ onSuccess, onCancel }: NoteFormProps) {
+  const router = useRouter();
+  const { draft, setDraft } = useDraftStore();
   const queryClient = useQueryClient();
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [tag, setTag] = useState<NoteTag | ''>('');
 
-  const mutation = useMutation<Note, Error, Partial<Note>>({
-    mutationFn: (note) => createNote(note),
+  const mutation = useMutation({
+    mutationFn: (note: typeof draft) => clientApi.createNote(note),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notes'] });
-      setTitle('');
-      setContent('');
-      setTag('');
-      onSuccess?.();
+      setDraft({ title: '', content: '', tag: '' });
+      if (onSuccess) onSuccess();
     },
   });
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    mutation.mutate({ title, content, tag: tag || undefined });
+    mutation.mutate(draft);
   };
 
   return (
-    <form className={styles.form} onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit}>
       <input
         type="text"
         placeholder="Title"
-        value={title}
-        onChange={(e: ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
-        required
+        value={draft.title}
+        onChange={(e) => setDraft({ ...draft, title: e.target.value })}
       />
       <textarea
         placeholder="Content"
-        value={content}
-        onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setContent(e.target.value)}
-        required
+        value={draft.content}
+        onChange={(e) => setDraft({ ...draft, content: e.target.value })}
       />
-      <input
-        type="text"
-        placeholder="Tag"
-        value={tag}
-        onChange={(e: ChangeEvent<HTMLInputElement>) => setTag(e.target.value as NoteTag)}
-      />
-      <div className={styles.actions}>
-        <button type="submit">Create</button>
-        <button type="button" onClick={onCancel}>
-          Cancel
-        </button>
-      </div>
+      <select
+        value={draft.tag}
+        onChange={(e) => setDraft({ ...draft, tag: e.target.value })}
+      >
+        <option value="">Select tag</option>
+        {TAGS.map((t) => (
+          <option key={t} value={t}>
+            {t}
+          </option>
+        ))}
+      </select>
+      <button type="submit">Save</button>
+      <button type="button" onClick={onCancel ?? (() => router.back())}>
+        Cancel
+      </button>
     </form>
   );
 }

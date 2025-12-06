@@ -1,41 +1,27 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
+import { useAuthStore } from '@/lib/store/authStore';
 import { clientApi } from '@/lib/api/clientApi';
 
-interface User {
-  id: string;
-  username: string;
-  email: string;
+interface AuthProviderProps {
+  children: ReactNode;
 }
 
-interface AuthContextProps {
-  user: User | null;
-  setUser: (user: User | null) => void;
-  logout: () => void;
-}
-
-const AuthContext = createContext<AuthContextProps | undefined>(undefined);
-
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+export default function AuthProvider({ children }: AuthProviderProps) {
+  const setUser = useAuthStore((state) => state.setUser);
 
   useEffect(() => {
-    clientApi.get('/users/me')
-      .then(res => setUser(res.data))
-      .catch(() => setUser(null));
-  }, []);
+    const checkUser = async () => {
+      try {
+        const user = await clientApi.getCurrentUser();
+        setUser(user);
+      } catch {
+        setUser(null);
+      }
+    };
+    checkUser();
+  }, [setUser]);
 
-  const logout = async () => {
-    await clientApi.post('/auth/logout');
-    setUser(null);
-  };
-
-  return <AuthContext.Provider value={{ user, setUser, logout }}>{children}</AuthContext.Provider>;
-};
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within AuthProvider');
-  return context;
-};
+  return <>{children}</>;
+}
