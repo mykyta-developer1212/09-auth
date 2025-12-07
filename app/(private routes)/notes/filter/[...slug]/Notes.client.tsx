@@ -1,62 +1,28 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { clientApi } from '@/lib/api/clientApi';
-import NoteList from '@/components/NoteList/NoteList';
-import SearchBox from '@/components/SearchBox/SearchBox';
-import Pagination from '@/components/Pagination/Pagination';
-import Link from 'next/link';
 import { Note } from '@/types/note';
 
-interface NotesResponse {
-  items: Note[];
-  totalPages: number;
+interface NoteClientProps {
+  noteId: string;
 }
 
-const TAGS = ['Todo', 'Work', 'Personal', 'Meeting', 'Shopping'];
+export default function NoteClient({ noteId }: NoteClientProps) {
 
-export default function NotesPage() {
-  const [search, setSearch] = useState('');
-  const [page, setPage] = useState(1);
-  const [tagFilter, setTagFilter] = useState('');
-  const queryClient = useQueryClient();
-
-  const { data: notes, isLoading } = useQuery<NotesResponse, Error>({
-    queryKey: ['notes', page, search, tagFilter],
-    queryFn: () => clientApi.getNotes({ page, search, tag: tagFilter }),
+  const { data: note, isLoading, error } = useQuery<Note>({
+    queryKey: ['note', noteId],
+    queryFn: () => clientApi.getNoteById(noteId),
   });
 
-  useEffect(() => {
-    if (notes && page < notes.totalPages) {
-      queryClient.prefetchQuery({
-        queryKey: ['notes', page + 1, search, tagFilter],
-        queryFn: () => clientApi.getNotes({ page: page + 1, search, tag: tagFilter }),
-      });
-    }
-  }, [notes, page, search, tagFilter, queryClient]);
+  if (isLoading) return <p>Loading...</p>;
+  if (error) return <p>Error loading note</p>;
 
   return (
     <div>
-      <h1>Notes</h1>
-
-      <Link href="/notes/action/create">Create Note</Link>
-
-      <SearchBox value={search} onChange={(value) => { setPage(1); setSearch(value); }} />
-
-      <div style={{ margin: '10px 0' }}>
-        <label>Filter by Tag: </label>
-        <select value={tagFilter} onChange={(e) => { setPage(1); setTagFilter(e.target.value); }}>
-          <option value="">All</option>
-          {TAGS.map((t) => (<option key={t} value={t}>{t}</option>))}
-        </select>
-      </div>
-
-      {isLoading ? <p>Loading...</p> : <NoteList notes={notes?.items || []} />}
-
-      {notes && notes.totalPages > 1 && (
-        <Pagination pageCount={notes.totalPages} currentPage={page} onPageChange={setPage} />
-      )}
+      <h2>{note?.title}</h2>
+      <p>{note?.content}</p>
+      <span>{note?.tag}</span>
     </div>
   );
 }
