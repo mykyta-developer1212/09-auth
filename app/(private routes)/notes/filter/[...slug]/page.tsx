@@ -1,6 +1,6 @@
-import NotesClient from "./Notes.client";
-import TanStackProvider from "@/components/TanStackProvider/TanStackProvider";
-import type { NoteTag } from "@/types/note";
+import NotesClient from './Notes.client';
+import TanStackProvider from '@/components/TanStackProvider/TanStackProvider';
+import type { NoteTag } from '@/types/note';
 
 interface PageProps {
   params: { slug?: string[] };

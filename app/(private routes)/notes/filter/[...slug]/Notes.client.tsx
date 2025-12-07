@@ -1,28 +1,37 @@
 'use client';
 
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { clientApi } from '@/lib/api/clientApi';
-import { Note } from '@/types/note';
+import { clientApi, GetNotesResponse } from '@/lib/api/clientApi';
+import SearchBox from '@/components/SearchBox/SearchBox';
+import Pagination from '@/components/Pagination/Pagination';
+import NoteList from '@/components/NoteList/NoteList';
 
-interface NoteClientProps {
-  noteId: string;
+interface NotesClientProps {
+  tag?: string;
 }
 
-export default function NoteClient({ noteId }: NoteClientProps) {
+export default function NotesClient({ tag }: NotesClientProps) {
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
 
-  const { data: note, isLoading, error } = useQuery<Note>({
-    queryKey: ['note', noteId],
-    queryFn: () => clientApi.getNoteById(noteId),
+  const { data, isLoading, error } = useQuery<GetNotesResponse, Error>({
+    queryKey: ['notes', page, search, tag],
+    queryFn: () => clientApi.getNotes({ page, search, tag }),
   });
 
   if (isLoading) return <p>Loading...</p>;
-  if (error) return <p>Error loading note</p>;
+  if (error) return <p>Error loading notes</p>;
 
   return (
     <div>
-      <h2>{note?.title}</h2>
-      <p>{note?.content}</p>
-      <span>{note?.tag}</span>
+      <SearchBox value={search} onChange={setSearch} />
+      <NoteList notes={data?.items || []} />
+      <Pagination
+      totalPages={data?.totalPages || 1}  
+      currentPage={page}                  
+      onPageChange={setPage}              
+      />
     </div>
   );
 }

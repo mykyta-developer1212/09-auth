@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { clientApi } from '@/lib/api/clientApi';
 import { useRouter } from 'next/navigation';
 import { Note } from '@/types/note';
+import Modal from '@/components/Modal/Modal';
 
 interface NotePreviewProps {
   noteId: string;
@@ -21,13 +22,10 @@ export default function NotePreview({ noteId }: NotePreviewProps) {
   if (isError || !note) return <p>Error loading note</p>;
 
   return (
-    <div className="modal">
-      <div className="modal-content">
-        <h2>{note.title}</h2>
-        <p>{note.content}</p>
-        <p>Tag: {note.tag}</p>
-        <button onClick={() => router.back()}>Close</button>
-      </div>
-    </div>
+    <Modal onClose={() => router.back()}>
+      <h2>{note.title}</h2>
+      <p>{note.content}</p>
+      <p>Tag: {note.tag}</p>
+    </Modal>
   );
 }

@@ -8,7 +8,6 @@ interface NotePageProps {
 
 export default async function NotePage({ params }: NotePageProps) {
   const queryClient = new QueryClient();
-
   await queryClient.prefetchQuery({
     queryKey: ['note', params.id],
     queryFn: () => serverApi.fetchNoteById(params.id),

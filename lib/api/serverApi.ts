@@ -13,14 +13,17 @@ export const serverApi = {
     return data;
   },
 
-  checkSession: async (refreshToken: string) => {
-    return api.get('/auth/session', {
-      headers: { Cookie: `refreshToken=${refreshToken}` },
+  checkSession: async (): Promise<User> => {
+    const cookieStore = await cookies();
+    const refreshToken = cookieStore.get('refreshToken')?.value;
+    const { data } = await api.get<User>('/auth/session', {
+      headers: refreshToken ? { Cookie: `refreshToken=${refreshToken}` } : undefined,
     });
+    return data;
   },
 
   getCurrentUser: async (): Promise<User> => {
-    const cookieStore = await cookies(); 
+    const cookieStore = await cookies();
     const accessToken = cookieStore.get('accessToken')?.value;
     const { data } = await api.get<User>('/users/me', {
       headers: accessToken ? { Cookie: `accessToken=${accessToken}` } : undefined,

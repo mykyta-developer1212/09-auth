@@ -3,28 +3,37 @@
 import { useState } from 'react';
 import { useAuthStore } from '@/lib/store/authStore';
 import { clientApi } from '@/lib/api/clientApi';
+import { useRouter } from 'next/navigation';
+import Image from 'next/image'; 
 
 export default function EditProfilePage() {
   const { user, setUser } = useAuthStore();
+  const router = useRouter();
   const [username, setUsername] = useState(user?.username || '');
-  const [email, setEmail] = useState(user?.email || '');
-  const [avatar, setAvatar] = useState(user?.avatar || '');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!user) return;
 
-    const updatedUser = await clientApi.updateProfile({ username, email, avatar });
+    const updatedUser = await clientApi.updateProfile({ username });
     setUser(updatedUser);
-    alert('Profile updated!');
+    router.back();
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Username" />
-      <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
-      <input type="text" value={avatar} onChange={(e) => setAvatar(e.target.value)} placeholder="Avatar URL" />
+      <input
+        type="text"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        placeholder="Username"
+      />
+      <input type="email" value={user?.email || ''} readOnly placeholder="Email" />
+      {user?.avatar && (
+        <Image src={user.avatar} alt="avatar" width={100} height={100} />
+      )}
       <button type="submit">Save</button>
+      <button type="button" onClick={() => router.back()}>Cancel</button>
     </form>
   );
 }

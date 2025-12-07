@@ -47,8 +47,13 @@ export const clientApi = {
     return data;
   },
 
-  updateProfile: async (user: Partial<User>): Promise<User> => {
+  updateProfile: async (user: { username?: string }): Promise<User> => {
     const { data } = await api.patch<User>('/users/me', user);
+    return data;
+  },
+
+  checkSession: async (): Promise<User> => {
+    const { data } = await api.get<User>('/auth/session');
     return data;
   },
 };
