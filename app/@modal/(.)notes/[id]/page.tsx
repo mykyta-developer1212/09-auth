@@ -10,8 +10,8 @@ export default async function NoteModalPage({ params }: NoteModalPageProps) {
   const queryClient = new QueryClient();
 
   await queryClient.prefetchQuery({
-  queryKey: ['note', params.id],
-  queryFn: () => serverApi.fetchNoteById(params.id),
+    queryKey: ['note', params.id],
+    queryFn: () => serverApi.fetchNoteById(params.id),
   });
 
   return <NotePreview noteId={params.id} />;

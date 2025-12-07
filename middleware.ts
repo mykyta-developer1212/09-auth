@@ -10,32 +10,35 @@ export async function middleware(req: NextRequest) {
   const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
   const isPrivateRoute = privateRoutes.some((route) => pathname.startsWith(route));
 
-  const token = req.cookies.get('token')?.value;
+  const accessToken = req.cookies.get('accessToken')?.value;
+  const refreshToken = req.cookies.get('refreshToken')?.value;
 
-  if (!token && isPrivateRoute) {
-    return NextResponse.redirect(new URL('/sign-in', req.url));
-  }
-
-  if (token) {
+  if (!accessToken && refreshToken) {
     try {
-      const response = await serverApi.checkSession(token);
+      const response = await serverApi.checkSession(refreshToken);
       const res = NextResponse.next();
 
-      if (response?.data?.newToken) {
-        res.cookies.set('token', response.data.newToken, { path: '/' });
+      if (response?.data?.accessToken) {
+        res.cookies.set('accessToken', response.data.accessToken, { path: '/' });
+      }
+      if (response?.data?.refreshToken) {
+        res.cookies.set('refreshToken', response.data.refreshToken, { path: '/' });
       }
 
-      if (isAuthRoute) {
-        return NextResponse.redirect(new URL('/', req.url));
-      }
+      if (isAuthRoute) return NextResponse.redirect(new URL('/', req.url));
 
       return res;
     } catch {
-
-      if (isPrivateRoute) {
-        return NextResponse.redirect(new URL('/sign-in', req.url));
-      }
+      if (isPrivateRoute) return NextResponse.redirect(new URL('/sign-in', req.url));
     }
+  }
+
+  if (!accessToken && isPrivateRoute) {
+    return NextResponse.redirect(new URL('/sign-in', req.url));
+  }
+
+  if (accessToken && isAuthRoute) {
+    return NextResponse.redirect(new URL('/', req.url));
   }
 
   return NextResponse.next();

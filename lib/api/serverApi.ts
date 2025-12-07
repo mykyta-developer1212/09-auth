@@ -1,40 +1,30 @@
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { cookies } from 'next/headers';
+import { api } from './api';
 import { Note } from '@/types/note';
 import { User } from '@/types/user';
-
-const apiClient: AxiosInstance = axios.create({
-  baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api`,
-  headers: { 'Content-Type': 'application/json' },
-});
 
 export const serverApi = {
   fetchNoteById: async (id: string): Promise<Note> => {
     const cookieStore = await cookies(); 
-    const token = cookieStore.get('token')?.value;
-
-    const { data }: AxiosResponse<Note> = await apiClient.get(`/notes/${id}`, {
-      headers: token ? { Cookie: `token=${token}` } : undefined,
+    const accessToken = cookieStore.get('accessToken')?.value;
+    const { data } = await api.get<Note>(`/notes/${id}`, {
+      headers: accessToken ? { Cookie: `accessToken=${accessToken}` } : undefined,
     });
-
     return data;
   },
 
-  checkSession: async (token: string): Promise<AxiosResponse> => {
-    const response: AxiosResponse = await apiClient.get('/auth/session', {
-      headers: { Cookie: `token=${token}` },
+  checkSession: async (refreshToken: string) => {
+    return api.get('/auth/session', {
+      headers: { Cookie: `refreshToken=${refreshToken}` },
     });
-    return response;
   },
 
   getCurrentUser: async (): Promise<User> => {
-    const cookieStore = await cookies(); // <--- await тут
-    const token = cookieStore.get('token')?.value;
-
-    const { data }: AxiosResponse<User> = await apiClient.get('/users/me', {
-      headers: token ? { Cookie: `token=${token}` } : undefined,
+    const cookieStore = await cookies(); 
+    const accessToken = cookieStore.get('accessToken')?.value;
+    const { data } = await api.get<User>('/users/me', {
+      headers: accessToken ? { Cookie: `accessToken=${accessToken}` } : undefined,
     });
-
     return data;
   },
 };

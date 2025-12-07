@@ -1,8 +1,8 @@
 'use client';
 
-import { Note } from '@/types/note';
 import { useQuery } from '@tanstack/react-query';
-import { fetchNoteById } from '@/lib/api/clientApi';
+import { clientApi } from '@/lib/api/clientApi';
+import { Note } from '@/types/note';
 
 interface NoteDetailsProps {
   note?: Note;
@@ -11,7 +11,7 @@ interface NoteDetailsProps {
 export default function NoteDetails({ note }: NoteDetailsProps) {
   const { data, isLoading, error } = useQuery({
     queryKey: ['note', note?.id],
-    queryFn: () => fetchNoteById(note!.id),
+    queryFn: () => clientApi.getNoteById(note!.id), 
     enabled: !!note,
   });
 

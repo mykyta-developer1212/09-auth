@@ -3,6 +3,10 @@ import { serverApi } from '@/lib/api/serverApi';
 import { User } from '@/types/user';
 import Link from 'next/link';
 
+export const metadata = {
+  title: 'Profile',
+};
+
 export default async function ProfilePage() {
   const user: User = await serverApi.getCurrentUser();
 

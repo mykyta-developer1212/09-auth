@@ -12,13 +12,19 @@ interface NoteFormProps {
   onCancel?: () => void;
 }
 
+interface Draft {
+  title: string;
+  content: string;
+  tag: string;
+}
+
 export default function NoteForm({ onSuccess, onCancel }: NoteFormProps) {
   const router = useRouter();
   const { draft, setDraft } = useDraftStore();
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: (note: typeof draft) => clientApi.createNote(note),
+    mutationFn: (note: Draft) => clientApi.createNote(note),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notes'] });
       setDraft({ title: '', content: '', tag: '' });
@@ -28,7 +34,7 @@ export default function NoteForm({ onSuccess, onCancel }: NoteFormProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    mutation.mutate(draft);
+    mutation.mutate(draft as Draft);
   };
 
   return (

@@ -6,13 +6,8 @@ import { clientApi } from '@/lib/api/clientApi';
 import NoteList from '@/components/NoteList/NoteList';
 import SearchBox from '@/components/SearchBox/SearchBox';
 import Pagination from '@/components/Pagination/Pagination';
-
-interface Note {
-  id: string;
-  title: string;
-  content: string;
-  tag: string;
-}
+import Link from 'next/link';
+import { Note } from '@/types/note';
 
 interface NotesResponse {
   items: Note[];
@@ -36,8 +31,7 @@ export default function NotesPage() {
     if (notes && page < notes.totalPages) {
       queryClient.prefetchQuery({
         queryKey: ['notes', page + 1, search, tagFilter],
-        queryFn: () =>
-          clientApi.getNotes({ page: page + 1, search, tag: tagFilter }),
+        queryFn: () => clientApi.getNotes({ page: page + 1, search, tag: tagFilter }),
       });
     }
   }, [notes, page, search, tagFilter, queryClient]);
@@ -46,40 +40,22 @@ export default function NotesPage() {
     <div>
       <h1>Notes</h1>
 
-      <SearchBox
-        value={search}
-        onChange={(value) => {
-          setPage(1);
-          setSearch(value);
-        }}
-      />
+      <Link href="/notes/action/create">Create Note</Link>
+
+      <SearchBox value={search} onChange={(value) => { setPage(1); setSearch(value); }} />
 
       <div style={{ margin: '10px 0' }}>
         <label>Filter by Tag: </label>
-        <select
-          value={tagFilter}
-          onChange={(e) => {
-            setPage(1);
-            setTagFilter(e.target.value);
-          }}
-        >
+        <select value={tagFilter} onChange={(e) => { setPage(1); setTagFilter(e.target.value); }}>
           <option value="">All</option>
-          {TAGS.map((t) => (
-            <option key={t} value={t}>
-              {t}
-            </option>
-          ))}
+          {TAGS.map((t) => (<option key={t} value={t}>{t}</option>))}
         </select>
       </div>
 
       {isLoading ? <p>Loading...</p> : <NoteList notes={notes?.items || []} />}
 
       {notes && notes.totalPages > 1 && (
-        <Pagination
-          pageCount={notes.totalPages}
-          currentPage={page}
-          onPageChange={setPage}
-        />
+        <Pagination pageCount={notes.totalPages} currentPage={page} onPageChange={setPage} />
       )}
     </div>
   );

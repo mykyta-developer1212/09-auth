@@ -2,13 +2,12 @@ import { api } from './api';
 import { Note } from '@/types/note';
 import { User } from '@/types/user';
 
-interface GetNotesResponse {
+export interface GetNotesResponse {
   items: Note[];
   totalPages: number;
 }
 
 export const clientApi = {
-
   getNotes: async (params?: { page?: number; search?: string; tag?: string }): Promise<GetNotesResponse> => {
     const { data } = await api.get<GetNotesResponse>('/notes', { params });
     return data;
@@ -24,8 +23,9 @@ export const clientApi = {
     return data;
   },
 
-  deleteNote: async (id: string): Promise<void> => {
-    await api.delete(`/notes/${id}`);
+  deleteNote: async (id: string): Promise<Note> => {
+    const { data } = await api.delete<Note>(`/notes/${id}`);
+    return data;
   },
 
   login: async (email: string, password: string): Promise<User> => {
