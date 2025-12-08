@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import css from "./Header.module.css";
-import AuthNavigation from "../AuthNavigation/AuthNavigation"; 
+import AuthNavigation from "../AuthNavigation/AuthNavigation";
 
 export default function Header() {
   return (
@@ -18,10 +18,8 @@ export default function Header() {
           <li>
             <Link href="/notes/filter/all">Notes</Link>
           </li>
-
-          <li>
-            <AuthNavigation />
-          </li>
+          
+          <AuthNavigation />
         </ul>
       </nav>
     </header>

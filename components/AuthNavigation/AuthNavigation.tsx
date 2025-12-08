@@ -2,13 +2,14 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useAuthStore, AuthState } from '@/lib/store/authStore';
+import { useAuthStore } from '@/lib/store/authStore';
 import { clientApi } from '@/lib/api/clientApi';
 
 export default function AuthNavigation() {
   const router = useRouter();
-  const user = useAuthStore((state: AuthState) => state.user);
-  const setUser = useAuthStore((state: AuthState) => state.setUser);
+
+  const user = useAuthStore((state) => state.user);
+  const setUser = useAuthStore((state) => state.setUser);
 
   const handleLogout = async () => {
     await clientApi.logout();
