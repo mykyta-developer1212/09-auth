@@ -26,11 +26,12 @@ export default function NotesClient({ tag }: NotesClientProps) {
   return (
     <div>
       <SearchBox value={search} onChange={setSearch} />
-      <NoteList notes={data?.items || []} />
+      <NoteList notes={data?.items ?? []} />
+
       <Pagination
-      totalPages={data?.totalPages || 1}  
-      currentPage={page}                  
-      onPageChange={setPage}              
+        pageCount={data?.totalPages ?? 1}
+        currentPage={page}
+        onPageChange={setPage}
       />
     </div>
   );
