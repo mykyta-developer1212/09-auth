@@ -9,7 +9,13 @@ export interface GetNotesResponse {
 
 export const clientApi = {
   getNotes: async (params?: { page?: number; search?: string; tag?: string }): Promise<GetNotesResponse> => {
-    const { data } = await api.get<GetNotesResponse>('/notes', { params });
+    const queryParams = {
+      page: params?.page ?? 1,
+      perPage: 12,
+      search: params?.search ?? '',
+      tag: params?.tag ?? undefined, 
+    };
+    const { data } = await api.get<GetNotesResponse>('/notes', { params: queryParams });
     return data;
   },
 
@@ -33,8 +39,8 @@ export const clientApi = {
     return data;
   },
 
-  register: async (email: string, password: string): Promise<User> => {
-    const { data } = await api.post<User>('/auth/register', { email, password });
+  register: async (email: string, password: string, username: string): Promise<User> => {
+    const { data } = await api.post<User>('/auth/register', { email, password, username });
     return data;
   },
 
@@ -42,18 +48,18 @@ export const clientApi = {
     await api.post('/auth/logout');
   },
 
+  checkSession: async (): Promise<User | null> => {
+    const { data } = await api.get<User>('/auth/session');
+    return data ?? null;
+  },
+
   getCurrentUser: async (): Promise<User> => {
     const { data } = await api.get<User>('/users/me');
     return data;
   },
 
-  updateProfile: async (user: { username?: string }): Promise<User> => {
-    const { data } = await api.patch<User>('/users/me', user);
-    return data;
-  },
-
-  checkSession: async (): Promise<User> => {
-    const { data } = await api.get<User>('/auth/session');
+  updateProfile: async (payload: { username?: string }): Promise<User> => {
+    const { data } = await api.patch<User>('/users/me', payload);
     return data;
   },
 };

@@ -23,6 +23,7 @@
 .navigationItem {
   display: flex;
   align-items: center;
+  position: relative;
 }
 
 .navigationLink {

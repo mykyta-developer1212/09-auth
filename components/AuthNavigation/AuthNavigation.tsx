@@ -3,28 +3,35 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/authStore';
-import { clientApi } from '@/lib/api/clientApi';
+import styles from './AuthNavigation.module.css';
 
 export default function AuthNavigation() {
   const router = useRouter();
-
-  const user = useAuthStore((state) => state.user);
-  const setUser = useAuthStore((state) => state.setUser);
+  const user = useAuthStore((s) => s.user);
+  const setUser = useAuthStore((s) => s.setUser);
 
   const handleLogout = async () => {
-    await clientApi.logout();
-    setUser(null);
-    router.push('/sign-in');
+    try {
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+      setUser(null);
+      router.push('/sign-in');
+    } catch (err) {
+      console.error('Logout error', err);
+    }
   };
 
   if (!user) {
     return (
       <>
-        <li>
-          <Link href="/sign-in">Sign In</Link>
+        <li className={styles.navigationItem}>
+          <Link href="/sign-in" prefetch={false} className={styles.navigationLink}>
+            Sign in
+          </Link>
         </li>
-        <li>
-          <Link href="/sign-up">Sign Up</Link>
+        <li className={styles.navigationItem}>
+          <Link href="/sign-up" prefetch={false} className={styles.navigationLink}>
+            Sign up
+          </Link>
         </li>
       </>
     );
@@ -32,11 +39,15 @@ export default function AuthNavigation() {
 
   return (
     <>
-      <li>
-        <Link href="/profile">{user.username}</Link>
+      <li className={styles.navigationItem}>
+        <Link href="/profile" prefetch={false} className={styles.navigationLink}>
+          {user.username}
+        </Link>
       </li>
-      <li>
-        <button onClick={handleLogout}>Logout</button>
+      <li className={styles.navigationItem}>
+        <button className={styles.logoutButton} onClick={handleLogout}>
+          Logout
+        </button>
       </li>
     </>
   );

@@ -1,25 +1,44 @@
 import { serverApi } from '@/lib/api/serverApi';
 import Image from 'next/image';
 import Link from 'next/link';
+import type { Metadata } from 'next';
+import styles from './ProfilePage.module.css';
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Profile',
+  description: 'User profile page',
 };
 
 export default async function ProfilePage() {
   const user = await serverApi.getCurrentUser();
 
   return (
-    <div>
-      <Image
-        src={user.avatar || '/default-avatar.png'}
-        alt="avatar"
-        width={100}
-        height={100}
-      />
-      <h1>{user.username}</h1>
-      <p>{user.email}</p>
-      <Link href="/profile/edit">Edit Profile</Link>
-    </div>
+    <main className={styles.mainContent}>
+      <div className={styles.profileCard}>
+        <div className={styles.header}>
+          <h1 className={styles.formTitle}>Profile</h1>
+          <Link href="/profile/edit" className={styles.editProfileButton}>
+            Edit Profile
+          </Link>
+        </div>
+
+        <div className={styles.avatarWrapper}>
+          <Image
+            src={user.avatar || '/default-avatar.png'}
+            alt="avatar"
+            width={120}
+            height={120}
+            className={styles.avatar}
+          />
+        </div>
+
+        <div className={styles.profileInfo}>
+          <div className={styles.usernameWrapper}>
+            <p><strong>Username:</strong> {user.username}</p>
+          </div>
+          <p><strong>Email:</strong> {user.email}</p>
+        </div>
+      </div>
+    </main>
   );
 }

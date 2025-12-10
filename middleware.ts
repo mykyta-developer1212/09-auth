@@ -1,49 +1,37 @@
-import { NextResponse, NextRequest } from 'next/server';
-import { serverApi } from '@/lib/api/serverApi';
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
-const authRoutes = ['/sign-in', '/sign-up'];
-const privateRoutes = ['/profile', '/notes'];
-
-export async function middleware(req: NextRequest) {
+export function middleware(req: NextRequest) {
+  const token = req.cookies.get('accessToken')?.value;
   const { pathname } = req.nextUrl;
 
-  const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
-  const isPrivateRoute = privateRoutes.some((route) => pathname.startsWith(route));
+  const isAuthRoute =
+    pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up');
 
-  const accessToken = req.cookies.get('accessToken')?.value;
-  const refreshToken = req.cookies.get('refreshToken')?.value;
+  const isPrivateRoute =
+    pathname.startsWith('/profile') ||
+    pathname.startsWith('/notes') ||
+    pathname.startsWith('/@modal/(.)notes');
 
-  if (!accessToken && refreshToken) {
-    try {
-      const response = await serverApi.checkSession(refreshToken);
-      const res = NextResponse.next();
-
-      if (response?.data?.accessToken) {
-        res.cookies.set('accessToken', response.data.accessToken, { path: '/' });
-      }
-      if (response?.data?.refreshToken) {
-        res.cookies.set('refreshToken', response.data.refreshToken, { path: '/' });
-      }
-
-      if (isAuthRoute) return NextResponse.redirect(new URL('/', req.url));
-
-      return res;
-    } catch {
-      if (isPrivateRoute) return NextResponse.redirect(new URL('/sign-in', req.url));
-    }
+  if (!token && isPrivateRoute) {
+    const redirectUrl = new URL('/sign-in', req.url);
+    return NextResponse.redirect(redirectUrl);
   }
 
-  if (!accessToken && isPrivateRoute) {
-    return NextResponse.redirect(new URL('/sign-in', req.url));
-  }
-
-  if (accessToken && isAuthRoute) {
-    return NextResponse.redirect(new URL('/', req.url));
+  if (token && isAuthRoute) {
+    const redirectUrl = new URL('/profile', req.url);
+    return NextResponse.redirect(redirectUrl);
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/profile/:path*', '/notes/:path*', '/sign-in', '/sign-up'],
+  matcher: [
+    '/profile/:path*',
+    '/notes/:path*',
+    '/@modal/(.)notes/:path*',
+    '/sign-in',
+    '/sign-up',
+  ],
 };

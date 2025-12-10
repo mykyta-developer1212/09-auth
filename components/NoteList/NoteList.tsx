@@ -13,8 +13,8 @@ interface NoteListProps {
 export default function NoteList({ notes }: NoteListProps) {
   const queryClient = useQueryClient();
 
-  const mutation = useMutation<void, Error, string>({
-    mutationFn: (id) => clientApi.deleteNote(id),
+  const mutation = useMutation({
+    mutationFn: (id: string) => clientApi.deleteNote(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notes'] }),
   });
 
@@ -27,7 +27,12 @@ export default function NoteList({ notes }: NoteListProps) {
           </Link>
           <p>{note.content}</p>
           <span>{note.tag}</span>
-          <button onClick={() => mutation.mutate(note.id)}>Delete</button>
+          <button
+            onClick={() => mutation.mutate(note.id)}
+            disabled={mutation.status === 'pending'}
+          >
+            {mutation.status === 'pending' ? 'Deleting...' : 'Delete'}
+          </button>
         </li>
       ))}
     </ul>
