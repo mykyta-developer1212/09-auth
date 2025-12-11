@@ -5,7 +5,8 @@ export async function middleware(req: NextRequest) {
   const accessToken = req.cookies.get('accessToken')?.value;
   const { pathname } = req.nextUrl;
 
-  const isAuthRoute = pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up');
+  const isAuthRoute =
+    pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up');
 
   const isPrivateRoute =
     pathname.startsWith('/profile') ||
