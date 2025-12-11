@@ -1,69 +1,41 @@
-'use client';
+import Image from "next/image";
+import { serverApi } from "@/lib/api/serverApi";
+import type { Metadata } from "next";
+import styles from "./EditProfile.module.css";
 
-import { useState } from 'react';
-import { useAuthStore } from '@/lib/store/authStore';
-import { clientApi } from '@/lib/api/clientApi';
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import styles from './EditProfile.module.css';
+export const metadata: Metadata = {
+  title: "Profile",
+  description: "User profile page",
+};
 
-export default function EditProfilePage() {
-  const { user, setUser } = useAuthStore();
-  const router = useRouter();
-  const [username, setUsername] = useState(user?.username || '');
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!user) return;
-
-    const updatedUser = await clientApi.updateProfile({ username });
-    setUser(updatedUser);
-    router.back();
-  };
+export default async function ProfilePage() {
+  const user = await serverApi.getCurrentUser();
 
   return (
     <main className={styles.mainContent}>
       <div className={styles.profileCard}>
-        <h1 className={styles.formTitle}>Edit Profile</h1>
+        <div className={styles.header}>
+          <h1 className={styles.formTitle}>Profile Page</h1>
+          <a href="/profile/edit" className={styles.editProfileButton}>
+            Edit Profile
+          </a>
+        </div>
 
-        {user?.avatar && (
-          <Image
-            src={user.avatar}
-            alt="avatar"
-            width={120}
-            height={120}
-            className={styles.avatar}
-          />
-        )}
-
-        <form onSubmit={handleSubmit} className={styles.profileInfo}>
-          <div className={styles.usernameWrapper}>
-            <label htmlFor="username">Username</label>
-            <input
-              id="username"
-              type="text"
-              className={styles.input}
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter username"
+        <div className={styles.avatarWrapper}>
+          {user.avatar && (
+            <Image
+              src={user.avatar}
+              alt="User Avatar"
+              width={120}
+              height={120}
+              className={styles.avatar}
             />
-          </div>
+          )}
+        </div>
 
-          <p>Email: {user?.email}</p>
-
-          <div className={styles.actions}>
-            <button type="submit" className={styles.saveButton}>
-              Save
-            </button>
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className={styles.cancelButton}
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
+        <div className={styles.profileInfo}>
+          <p>Email: {user.email}</p>
+        </div>
       </div>
     </main>
   );

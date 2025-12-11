@@ -1,54 +1,53 @@
 import { cookies } from 'next/headers';
 import { api } from './api';
-import { Note } from '@/types/note';
-import { User } from '@/types/user';
-import { AxiosResponse } from 'axios';
+import type { User } from '@/types/user';
+import type { Note } from '@/types/note';
 
+// Функція для формування заголовка Cookie
 async function buildCookieHeader() {
+  const cookieStore = await cookies(); // Next 16 повертає Promise
+  const access = cookieStore.get('accessToken')?.value;
+  const refresh = cookieStore.get('refreshToken')?.value;
 
-  const cookieStore = await cookies();
+  if (!access && !refresh) return undefined;
 
-  try {
-    const parts: string[] = [];
-
-    const accessToken = cookieStore.get?.('accessToken')?.value;
-    const refreshToken = cookieStore.get?.('refreshToken')?.value;
-
-    if (accessToken) parts.push(`accessToken=${accessToken}`);
-    if (refreshToken) parts.push(`refreshToken=${refreshToken}`);
-
-    return parts.length ? parts.join('; ') : undefined;
-  } catch {
-    return undefined;
-  }
+  return [
+    access ? `accessToken=${access}` : null,
+    refresh ? `refreshToken=${refresh}` : null,
+  ].filter(Boolean).join('; ');
 }
 
 export const serverApi = {
-  fetchNoteById: async (id: string): Promise<Note> => {
-    const cookieHeader = await buildCookieHeader();
-
-    const { data } = await api.get<Note>(`/notes/${id}`, {
-      headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
-    });
-
-    return data;
-  },
-
-  checkSession: async (): Promise<AxiosResponse<User>> => {
-    const cookieHeader = await buildCookieHeader();
-
-    return await api.get<User>('/auth/session', {
-      headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
-    });
-  },
-
   getCurrentUser: async (): Promise<User> => {
     const cookieHeader = await buildCookieHeader();
 
     const { data } = await api.get<User>('/users/me', {
       headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
+      withCredentials: true,
     });
 
     return data;
+  },
+
+  fetchNoteById: async (id: string): Promise<Note> => {
+    const cookieHeader = await buildCookieHeader();
+
+    const { data } = await api.get<Note>(`/notes/${id}`, {
+      headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
+      withCredentials: true,
+    });
+
+    return data;
+  },
+
+  checkSession: async (): Promise<User | null> => {
+    const cookieHeader = await buildCookieHeader();
+
+    const { data } = await api.get<User>('/auth/session', {
+      headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
+      withCredentials: true,
+    });
+
+    return data ?? null;
   },
 };

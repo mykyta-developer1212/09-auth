@@ -4,11 +4,11 @@ import NotePreview from '@/app/@modal/(.)notes/[id]/NotePreview.client';
 import type { DehydratedState } from '@tanstack/react-query';
 
 interface NotePageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export default async function NotePage({ params }: NotePageProps) {
-  const id = params.id;
+  const { id } = await params; 
   const queryClient = new QueryClient();
 
   await queryClient.prefetchQuery({

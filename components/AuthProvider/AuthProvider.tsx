@@ -9,9 +9,23 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   const setUser = useAuthStore((state) => state.setUser);
 
   useEffect(() => {
-    clientApi.checkSession()
-      .then((user) => setUser(user))
-      .finally(() => setLoading(false));
+    const checkAuth = async () => {
+      try {
+        const session = await clientApi.checkSession();
+        if (session) {
+          const user = await clientApi.getCurrentUser();
+          setUser(user);
+        } else {
+          setUser(null);
+        }
+      } catch {
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
   }, [setUser]);
 
   if (loading) return <p>Loading...</p>;

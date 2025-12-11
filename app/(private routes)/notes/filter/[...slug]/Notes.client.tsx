@@ -22,16 +22,18 @@ export default function NotesClient({ tag }: NotesClientProps) {
     return () => clearTimeout(t);
   }, [search]);
 
-  const query = useQuery<GetNotesResponse, Error>({
-    queryKey: ['notes', page, debouncedSearch, tag],
-    queryFn: () => clientApi.getNotes({ page, search: debouncedSearch, tag }),
+  const normalizedTag = tag?.toLowerCase() === 'all' ? '' : tag;
+
+  const { data, isLoading, isError, error } = useQuery<GetNotesResponse, Error>({
+    queryKey: ['notes', page, debouncedSearch, normalizedTag],
+    queryFn: () => clientApi.getNotes({ page, search: debouncedSearch, tag: normalizedTag }),
   });
 
-  const notes = query.data?.items ?? [];
-  const totalPages = query.data?.totalPages ?? 1;
+  const notes = data?.items ?? [];
+  const totalPages = data?.totalPages ?? 1;
 
-  if (query.isLoading) return <p>Loading notes...</p>;
-  if (query.isError) return <p>Error loading notes: {query.error?.message}</p>;
+  if (isLoading) return <p>Loading notes...</p>;
+  if (isError) return <p>Error loading notes: {error?.message}</p>;
 
   return (
     <div>

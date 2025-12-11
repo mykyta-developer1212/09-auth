@@ -7,6 +7,7 @@ import styles from './AuthNavigation.module.css';
 
 export default function AuthNavigation() {
   const router = useRouter();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const user = useAuthStore((s) => s.user);
   const setUser = useAuthStore((s) => s.setUser);
 
@@ -20,7 +21,7 @@ export default function AuthNavigation() {
     }
   };
 
-  if (!user) {
+  if (!isAuthenticated) {
     return (
       <>
         <li className={styles.navigationItem}>
@@ -41,7 +42,7 @@ export default function AuthNavigation() {
     <>
       <li className={styles.navigationItem}>
         <Link href="/profile" prefetch={false} className={styles.navigationLink}>
-          {user.username}
+          {user?.username}
         </Link>
       </li>
       <li className={styles.navigationItem}>

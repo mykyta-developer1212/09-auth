@@ -1,37 +1,27 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
-import { clientApi } from '@/lib/api/clientApi';
-import { useRouter } from 'next/navigation';
-import Modal from '@/components/Modal/Modal';
+import NoteForm from '@/components/NoteForm/NoteForm';
 import type { Note } from '@/types/note';
-import type { DehydratedState } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
+import { clientApi } from '@/lib/api/clientApi';
 
 interface NotePreviewProps {
   noteId: string;
-  dehydratedState?: DehydratedState; 
+  onClose?: () => void;
 }
 
-export default function NotePreview({ noteId }: NotePreviewProps) {
-  const router = useRouter();
+export default function NotePreviewClient({ noteId, onClose }: NotePreviewProps) {
+  const [note, setNote] = useState<Note | null>(null);
 
-  const query = useQuery<Note>({
-    queryKey: ['note', noteId],
-    queryFn: () => clientApi.getNoteById(noteId),
-  });
+  useEffect(() => {
+    const fetchNote = async () => {
+      const data = await clientApi.getNoteById(noteId);
+      setNote(data);
+    };
+    fetchNote();
+  }, [noteId]);
 
-  const note = query.data;
-  const isLoading = query.isLoading;
-  const isError = !!query.error;
+  if (!note) return <p>Loading...</p>;
 
-  if (isLoading) return <p>Loading...</p>;
-  if (isError || !note) return <p>Error loading note</p>;
-
-  return (
-    <Modal onClose={() => router.back()}>
-      <h2>{note.title}</h2>
-      <p>{note.content}</p>
-      <p>Tag: {note.tag}</p>
-    </Modal>
-  );
+  return <NoteForm note={note} onSuccess={onClose} onCancel={onClose} />;
 }

@@ -9,7 +9,6 @@ import styles from './SignUpPage.module.css';
 export default function SignUpPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [username, setUsername] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const router = useRouter();
   const setUser = useAuthStore((s) => s.setUser);
@@ -18,15 +17,15 @@ export default function SignUpPage() {
     e.preventDefault();
     setErrorMsg('');
 
-    if (!email || !password || !username) {
+    if (!email || !password) {
       setErrorMsg('Please fill all fields');
       return;
     }
 
     try {
-      const user = await clientApi.register(email, password, username);
+      const user = await clientApi.register(email, password);
       setUser(user);
-      router.push('/notes'); 
+      router.push('/profile');
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
       setErrorMsg(error.response?.data?.message ?? 'Registration failed');
@@ -40,21 +39,10 @@ export default function SignUpPage() {
         <h1 className={styles.formTitle}>Sign Up</h1>
 
         <div className={styles.formGroup}>
-          <label htmlFor="username">Username</label>
-          <input
-            id="username"
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className={styles.input}
-            required
-          />
-        </div>
-
-        <div className={styles.formGroup}>
           <label htmlFor="email">Email</label>
           <input
             id="email"
+            name="email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -67,6 +55,7 @@ export default function SignUpPage() {
           <label htmlFor="password">Password</label>
           <input
             id="password"
+            name="password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
