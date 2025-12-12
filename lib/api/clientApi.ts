@@ -1,54 +1,34 @@
-import axios from "axios";
-import type { Note } from "@/types/note";
+import { api } from './api';
+import type { Note } from '@/types/note';
+import type { User } from '@/types/user';
 
-export interface GetNotesParams {
-  page?: number;
-  search?: string;
-  tag?: string;
+interface CreateNoteParams {
+  title: string;
+  content: string;
+  tag: string;
 }
-
-export interface GetNotesResponse {
-  items: Note[];
-  page: number;
-  totalPages: number;
-}
-
-const api = axios.create({
-  baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api`,
-  withCredentials: true, // ⬅ ОБОВʼЯЗКОВО
-});
 
 export const clientApi = {
-  async login(email: string, password: string) {
-    const res = await api.post("/auth/login", { email, password });
-    return res.data;
+  login(email: string, password: string) {
+    return api.post<User>('/auth/login', { email, password }).then(res => res.data);
   },
-
-  async register(email: string, password: string) {
-    const res = await api.post("/auth/register", { email, password });
-    return res.data;
+  register(email: string, password: string) {
+    return api.post<User>('/auth/register', { email, password }).then(res => res.data);
   },
-
-  async checkSession() {
-    const res = await api.get("/auth/session");
-    return res.data;
+  checkSession() {
+    return api.get('/auth/session').then(() => true).catch(() => false);
   },
-
-  async getCurrentUser() {
-    const res = await api.get("/auth/current");
-    return res.data;
+  getCurrentUser() {
+    return api.get<User>('/users/me').then(res => res.data);
   },
-
-
-  async getNotes(params: GetNotesParams = {}): Promise<GetNotesResponse> {
-    const res = await api.get("/notes", {
-      params,
-    });
-    return res.data;
+  getNotes(params?: { page?: number; search?: string; tag?: string }) {
+    return api.get<{ items: Note[]; totalPages: number }>('/notes', { params }).then(res => res.data);
   },
-
-  async getNoteById(id: string): Promise<Note> {
-    const res = await api.get(`/notes/${id}`);
-    return res.data;
+  getNoteById(id: string) {
+    return api.get<Note>(`/notes/${id}`).then(res => res.data);
+  },
+  
+  createNote(data: CreateNoteParams) {
+    return api.post<Note>('/notes', data).then(res => res.data);
   },
 };
