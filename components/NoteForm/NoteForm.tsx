@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { clientApi } from "@/lib/api/clientApi";
 import { useDraftStore } from "@/lib/draftStore";
+import { useState } from "react";
 import css from "./NoteForm.module.css";
 
 const TAGS = ["Todo", "Work", "Personal", "Meeting", "Shopping"];
@@ -26,6 +27,14 @@ export default function NoteForm({ note, onSuccess, onCancel }: NoteFormProps) {
 
   const isEditing = Boolean(note);
 
+  // ❌ Прибираємо useEffect та одразу ініціалізуємо локальний стан
+  const [localNote, setLocalNote] = useState({
+    id: note?.id || "",
+    title: note?.title || draft.title || "",
+    content: note?.content || draft.content || "",
+    tag: note?.tag || draft.tag || "",
+  });
+
   const createMutation = useMutation({
     mutationFn: clientApi.createNote,
     onSuccess: () => {
@@ -36,33 +45,34 @@ export default function NoteForm({ note, onSuccess, onCancel }: NoteFormProps) {
   });
 
   const updateMutation = useMutation({
-    mutationFn: clientApi.updateNote,
+    mutationFn: (payload: { id: string; title: string; content: string; tag: string }) =>
+      clientApi.updateNote(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notes"] });
       onSuccess?.();
     },
   });
 
+  const value = isEditing ? localNote : draft;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (isEditing && note) {
+    if (isEditing) {
       updateMutation.mutate({
-        id: note.id,
-        title: note.title,
-        content: note.content,
-        tag: note.tag,
+        id: localNote.id,
+        title: localNote.title,
+        content: localNote.content,
+        tag: localNote.tag,
       });
     } else {
       createMutation.mutate(draft);
     }
   };
 
-  const value = isEditing ? note : draft;
-
   const handleChange = (field: "title" | "content" | "tag", val: string) => {
-    if (isEditing && note) {
-      note[field] = val;
+    if (isEditing) {
+      setLocalNote(prev => ({ ...prev, [field]: val }));
     } else {
       setDraft({ ...draft, [field]: val });
     }

@@ -3,9 +3,8 @@ import { api } from './api';
 import type { User } from '@/types/user';
 import type { Note } from '@/types/note';
 
-// Функція для формування заголовка Cookie
 async function buildCookieHeader() {
-  const cookieStore = await cookies(); // Next 16 повертає Promise
+  const cookieStore = await cookies(); 
   const access = cookieStore.get('accessToken')?.value;
   const refresh = cookieStore.get('refreshToken')?.value;
 

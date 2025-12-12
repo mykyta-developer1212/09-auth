@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export async function middleware(req: NextRequest) {
-  const accessToken = req.cookies.get('accessToken')?.value;
+  const session = req.cookies.get('session')?.value;
   const { pathname } = req.nextUrl;
 
   const isAuthRoute =
@@ -13,11 +13,11 @@ export async function middleware(req: NextRequest) {
     pathname.startsWith('/notes') ||
     pathname.startsWith('/@modal/notes');
 
-  if (!accessToken && isPrivateRoute) {
+  if (!session && isPrivateRoute) {
     return NextResponse.redirect(new URL('/sign-in', req.url));
   }
 
-  if (accessToken && isAuthRoute) {
+  if (session && isAuthRoute) {
     return NextResponse.redirect(new URL('/profile', req.url));
   }
 

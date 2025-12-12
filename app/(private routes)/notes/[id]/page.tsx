@@ -1,22 +1,13 @@
-import { QueryClient, dehydrate } from '@tanstack/react-query';
 import { serverApi } from '@/lib/api/serverApi';
-import NotePreview from '@/app/@modal/(.)notes/[id]/NotePreview.client';
-import type { DehydratedState } from '@tanstack/react-query';
+import NotePreviewClient from '@/app/@modal/(.)notes/[id]/NotePreview.client';
+import type { Note } from '@/types/note';
 
 interface NotePageProps {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }
 
 export default async function NotePage({ params }: NotePageProps) {
-  const { id } = await params; 
-  const queryClient = new QueryClient();
+  const note: Note = await serverApi.fetchNoteById(params.id);
 
-  await queryClient.prefetchQuery({
-    queryKey: ['note', id],
-    queryFn: () => serverApi.fetchNoteById(id),
-  });
-
-  const dehydratedState: DehydratedState = dehydrate(queryClient);
-
-  return <NotePreview noteId={id} dehydratedState={dehydratedState} />;
+  return <NotePreviewClient note={note} />;
 }

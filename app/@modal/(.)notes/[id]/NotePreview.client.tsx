@@ -6,22 +6,31 @@ import { useEffect, useState } from 'react';
 import { clientApi } from '@/lib/api/clientApi';
 
 interface NotePreviewProps {
-  noteId: string;
+  note?: Note;   
+  noteId?: string;    
   onClose?: () => void;
 }
 
-export default function NotePreviewClient({ noteId, onClose }: NotePreviewProps) {
-  const [note, setNote] = useState<Note | null>(null);
+export default function NotePreviewClient({ note, noteId, onClose }: NotePreviewProps) {
+  const [loadedNote, setLoadedNote] = useState<Note | null>(note ?? null);
 
   useEffect(() => {
-    const fetchNote = async () => {
-      const data = await clientApi.getNoteById(noteId);
-      setNote(data);
-    };
-    fetchNote();
-  }, [noteId]);
+    if (!note && noteId) {
+      const fetchNote = async () => {
+        const data = await clientApi.getNoteById(noteId);
+        setLoadedNote(data);
+      };
+      fetchNote();
+    }
+  }, [note, noteId]);
 
-  if (!note) return <p>Loading...</p>;
+  if (!loadedNote) return <p>Loading...</p>;
 
-  return <NoteForm note={note} onSuccess={onClose} onCancel={onClose} />;
+  return (
+    <NoteForm
+      note={loadedNote}
+      onSuccess={onClose}
+      onCancel={onClose}
+    />
+  );
 }

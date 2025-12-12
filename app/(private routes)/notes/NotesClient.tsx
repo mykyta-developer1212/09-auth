@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
-import { clientApi, GetNotesResponse } from "@/lib/api/clientApi";
-import { Note } from "@/types/note";
+'use client';
+
+import { useEffect, useState } from 'react';
+import { clientApi } from '@/lib/api/clientApi';
+import type { Note } from '@/types/note';
 
 export default function NotesClient() {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -10,7 +12,7 @@ export default function NotesClient() {
     const fetchNotes = async () => {
       setLoading(true);
       try {
-        const data: GetNotesResponse = await clientApi.getNotes();
+        const data = await clientApi.fetchNotes();
         setNotes(data.items);
       } finally {
         setLoading(false);
