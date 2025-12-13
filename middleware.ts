@@ -1,23 +1,26 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  const isAuthRoute =
-    pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up');
+  const isAuthRoute = pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up');
+  const isPrivateRoute = pathname.startsWith('/profile') || pathname.startsWith('/notes');
 
-  const isPrivateRoute =
-    pathname.startsWith('/profile') || pathname.startsWith('/notes');
+  const accessToken = req.cookies.get('accessToken')?.value;
+  const refreshToken = req.cookies.get('refreshToken')?.value;
 
-  const hasAuthCookies =
-    req.cookies.has('accessToken') || req.cookies.has('refreshToken');
+  let isAuthenticated = Boolean(accessToken);
 
-  if (!hasAuthCookies && isPrivateRoute) {
+  if (!accessToken && refreshToken) {
+    isAuthenticated = true; 
+  }
+
+  if (!isAuthenticated && isPrivateRoute) {
     return NextResponse.redirect(new URL('/sign-in', req.url));
   }
 
-  if (hasAuthCookies && isAuthRoute) {
+  if (isAuthenticated && isAuthRoute) {
     return NextResponse.redirect(new URL('/profile', req.url));
   }
 

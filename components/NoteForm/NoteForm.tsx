@@ -1,99 +1,56 @@
-"use client";
+'use client';
 
-import { useRouter } from "next/navigation";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { clientApi } from "@/lib/api/clientApi";
-import { useDraftStore } from "@/lib/draftStore";
-import { useState } from "react";
-import css from "./NoteForm.module.css";
+import { useRouter } from 'next/navigation';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { clientApi } from '@/lib/api/clientApi';
+import { useDraftStore } from '@/lib/draftStore';
+import css from './NoteForm.module.css';
 
-const TAGS = ["Todo", "Work", "Personal", "Meeting", "Shopping"];
+const TAGS = ['Todo', 'Work', 'Personal', 'Meeting', 'Shopping'];
 
-interface NoteFormProps {
-  note?: {
-    id: string;
-    title: string;
-    content: string;
-    tag: string;
-  };
-  onSuccess?: () => void;
-  onCancel?: () => void;
-}
-
-export default function NoteForm({ note, onSuccess, onCancel }: NoteFormProps) {
+export default function NoteForm() {
   const router = useRouter();
-  const { draft, setDraft } = useDraftStore();
   const queryClient = useQueryClient();
+  const { draft, setDraft, resetDraft } = useDraftStore();
 
-  const isEditing = Boolean(note);
-
-  const [localNote, setLocalNote] = useState({
-    id: note?.id ?? "",
-    title: note?.title ?? "",
-    content: note?.content ?? "",
-    tag: note?.tag ?? "",
-  });
-
-  const createMutation = useMutation({
+  const mutation = useMutation({
     mutationFn: clientApi.createNote,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notes"] });
-      setDraft({ title: "", content: "", tag: "" });
-      onSuccess?.();
+      queryClient.invalidateQueries({ queryKey: ['notes'] });
+      resetDraft();
+      router.back();
     },
   });
 
-  const value = isEditing ? localNote : draft;
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (isEditing) return;
-
-    createMutation.mutate({
-      title: draft.title,
-      content: draft.content,
-      tag: draft.tag,
-    });
-  };
-
-  const handleChange = (field: "title" | "content" | "tag", val: string) => {
-    if (isEditing) {
-      setLocalNote(prev => ({ ...prev, [field]: val }));
-    } else {
-      setDraft({
-        title: field === "title" ? val : draft.title,
-        content: field === "content" ? val : draft.content,
-        tag: field === "tag" ? val : draft.tag,
-      });
-    }
+    mutation.mutate(draft);
   };
 
   return (
     <form className={css.form} onSubmit={handleSubmit}>
       <input
-        value={value.title}
-        onChange={e => handleChange("title", e.target.value)}
+        value={draft.title}
+        onChange={e => setDraft({ ...draft, title: e.target.value })}
       />
+
       <textarea
-        value={value.content}
-        onChange={e => handleChange("content", e.target.value)}
+        value={draft.content}
+        onChange={e => setDraft({ ...draft, content: e.target.value })}
       />
+
       <select
-        value={value.tag}
-        onChange={e => handleChange("tag", e.target.value)}
+        value={draft.tag}
+        onChange={e => setDraft({ ...draft, tag: e.target.value })}
       >
         <option value="">Select tag</option>
-        {TAGS.map(t => (
-          <option key={t} value={t}>{t}</option>
+        {TAGS.map(tag => (
+          <option key={tag} value={tag}>{tag}</option>
         ))}
       </select>
 
-      <button type="submit">
-        {isEditing ? "Update" : "Create"}
-      </button>
-
-      <button type="button" onClick={onCancel ?? (() => router.back())}>
+      <button type="submit">Create</button>
+      <button type="button" onClick={() => router.back()}>
         Cancel
       </button>
     </form>

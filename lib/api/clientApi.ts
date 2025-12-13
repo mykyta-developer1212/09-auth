@@ -1,16 +1,16 @@
 import { api } from './api';
-import type { Note } from '@/types/note';
 import type { User } from '@/types/user';
+import type { Note } from '@/types/note';
+
+export interface GetNotesResponse {
+  items: Note[];
+  totalPages: number;
+}
 
 export interface GetNotesParams {
   page?: number;
   search?: string;
   tag?: string;
-}
-
-export interface GetNotesResponse {
-  items: Note[];
-  totalPages: number;
 }
 
 export interface CreateNoteParams {
@@ -33,22 +33,17 @@ export const clientApi = {
     await api.post('/auth/logout');
   },
 
-  async checkSession(): Promise<boolean> {
+  async checkSession(): Promise<User | null> {
     try {
-      await api.get('/auth/session');
-      return true;
+      const res = await api.get<User>('/auth/session');
+      return res.data || null;
     } catch {
-      return false;
+      return null;
     }
   },
 
   async getCurrentUser(): Promise<User> {
     const res = await api.get<User>('/users/me');
-    return res.data;
-  },
-
-  async updateProfile(data: { username: string }): Promise<User> {
-    const res = await api.patch<User>('/users/me', data);
     return res.data;
   },
 

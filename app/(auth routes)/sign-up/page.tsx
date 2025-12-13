@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { clientApi } from '@/lib/api/clientApi';
-import { useAuthStore } from '@/lib/store/authStore';
 import styles from './SignUpPage.module.css';
 
 export default function SignUpPage() {
@@ -11,7 +10,6 @@ export default function SignUpPage() {
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const router = useRouter();
-  const setUser = useAuthStore((s) => s.setUser);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -23,10 +21,8 @@ export default function SignUpPage() {
     }
 
     try {
-      await clientApi.register(email, password);
-      const user = await clientApi.login(email, password);
-      setUser(user);
-      router.push('/profile'); 
+      await clientApi.register(email, password); 
+      router.push('/profile/edit'); 
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
       setErrorMsg(error.response?.data?.message ?? 'Registration failed');
@@ -43,7 +39,6 @@ export default function SignUpPage() {
           <label htmlFor="email">Email</label>
           <input
             id="email"
-            name="email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -56,7 +51,6 @@ export default function SignUpPage() {
           <label htmlFor="password">Password</label>
           <input
             id="password"
-            name="password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}

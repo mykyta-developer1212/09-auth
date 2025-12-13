@@ -1,40 +1,36 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
 import { clientApi } from '@/lib/api/clientApi';
-import NoteForm from '@/components/NoteForm/NoteForm';
+import Modal from '@/components/Modal/Modal';
 import type { Note } from '@/types/note';
 
 interface NotePreviewProps {
   noteId: string;
-  onClose?: () => void;
+  onClose?: () => void; 
 }
 
 export default function NotePreviewClient({ noteId, onClose }: NotePreviewProps) {
-  const [note, setNote] = useState<Note | null>(null);
-  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
-  useEffect(() => {
-    const loadNote = async () => {
-      try {
-        const data: Note = await clientApi.getNoteById(noteId);
-        setNote(data);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const { data: note, isLoading, isError } = useQuery<Note>({
+    queryKey: ['note', noteId],
+    queryFn: () => clientApi.getNoteById(noteId),
+  });
 
-    loadNote();
-  }, [noteId]);
+  if (isLoading) return <p>Loading...</p>;
+  if (isError || !note) return <p>Note not found</p>;
 
-  if (loading) return <p>Loading...</p>;
-  if (!note) return <p>Note not found</p>;
+  const handleClose = onClose ?? (() => router.back());
 
   return (
-    <NoteForm
-      note={note}
-      onSuccess={onClose}
-      onCancel={onClose}
-    />
+    <Modal onClose={handleClose}>
+      <h2>{note.title}</h2>
+      <p>{note.content}</p>
+      <p>{note.tag}</p>
+
+      <button onClick={handleClose}>Close</button>
+    </Modal>
   );
 }

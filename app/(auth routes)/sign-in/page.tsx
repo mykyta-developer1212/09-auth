@@ -25,7 +25,7 @@ export default function SignInPage() {
     try {
       const user = await clientApi.login(email, password);
       setUser(user);
-      router.push('/profile'); 
+      router.push('/notes'); 
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
       setErrorMsg(error.response?.data?.message ?? 'Invalid email or password');

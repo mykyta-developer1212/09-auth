@@ -1,13 +1,13 @@
 import { serverApi } from '@/lib/api/serverApi';
-import NotePreviewClient from './NoteDetails.client';
+import NoteDetailsClient from './NoteDetails.client';
 import type { Note } from '@/types/note';
 
-interface NotePageProps {
+interface PageProps {
   params: { id: string };
 }
 
-export default async function NotePage({ params }: NotePageProps) {
+export default async function NotePage({ params }: PageProps) {
   const note: Note = await serverApi.fetchNoteById(params.id);
 
-  return <NotePreviewClient note={note} />;
+  return <NoteDetailsClient note={note} />;
 }
