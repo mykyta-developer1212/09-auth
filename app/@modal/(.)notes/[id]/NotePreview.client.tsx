@@ -1,34 +1,38 @@
 'use client';
 
-import NoteForm from '@/components/NoteForm/NoteForm';
-import type { Note } from '@/types/note';
 import { useEffect, useState } from 'react';
 import { clientApi } from '@/lib/api/clientApi';
+import NoteForm from '@/components/NoteForm/NoteForm';
+import type { Note } from '@/types/note';
 
 interface NotePreviewProps {
-  note?: Note;   
-  noteId?: string;    
+  noteId: string;
   onClose?: () => void;
 }
 
-export default function NotePreviewClient({ note, noteId, onClose }: NotePreviewProps) {
-  const [loadedNote, setLoadedNote] = useState<Note | null>(note ?? null);
+export default function NotePreviewClient({ noteId, onClose }: NotePreviewProps) {
+  const [note, setNote] = useState<Note | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!note && noteId) {
-      const fetchNote = async () => {
-        const data = await clientApi.getNoteById(noteId);
-        setLoadedNote(data);
-      };
-      fetchNote();
-    }
-  }, [note, noteId]);
+    const loadNote = async () => {
+      try {
+        const data: Note = await clientApi.getNoteById(noteId);
+        setNote(data);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  if (!loadedNote) return <p>Loading...</p>;
+    loadNote();
+  }, [noteId]);
+
+  if (loading) return <p>Loading...</p>;
+  if (!note) return <p>Note not found</p>;
 
   return (
     <NoteForm
-      note={loadedNote}
+      note={note}
       onSuccess={onClose}
       onCancel={onClose}
     />

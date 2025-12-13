@@ -23,14 +23,13 @@ export default function SignInPage() {
     }
 
     try {
-      console.log('Submitting login form with:', { email, password });
       const user = await clientApi.login(email, password);
       setUser(user);
       router.push('/profile'); 
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
-      console.error('Sign-in error:', err);
       setErrorMsg(error.response?.data?.message ?? 'Invalid email or password');
+      console.error('Sign-in error:', err);
     }
   };
 

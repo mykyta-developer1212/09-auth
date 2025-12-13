@@ -23,9 +23,10 @@ export default function SignUpPage() {
     }
 
     try {
-      const user = await clientApi.register(email, password);
+      await clientApi.register(email, password);
+      const user = await clientApi.login(email, password);
       setUser(user);
-      router.push('/profile');
+      router.push('/profile'); 
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
       setErrorMsg(error.response?.data?.message ?? 'Registration failed');

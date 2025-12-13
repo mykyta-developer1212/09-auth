@@ -1,5 +1,5 @@
 import { serverApi } from '@/lib/api/serverApi';
-import NotePreviewClient from '@/app/@modal/(.)notes/[id]/NotePreview.client';
+import NotePreviewClient from './NoteDetails.client';
 import type { Note } from '@/types/note';
 
 interface NotePageProps {

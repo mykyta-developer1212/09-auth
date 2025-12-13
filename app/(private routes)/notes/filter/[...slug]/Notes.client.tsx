@@ -15,8 +15,8 @@ interface NotesClientProps {
 export default function NotesClient({ tag }: NotesClientProps) {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
-  const [debouncedSearch, setDebouncedSearch] = useState(search);
 
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(search), 500);
     return () => clearTimeout(t);
@@ -24,9 +24,17 @@ export default function NotesClient({ tag }: NotesClientProps) {
 
   const normalizedTag = tag?.toLowerCase() === 'all' ? '' : tag;
 
-  const { data, isLoading, isError, error } = useQuery<GetNotesResponse, Error>({
+  useEffect(() => {
+
+    const id = setTimeout(() => setPage(1), 0);
+    return () => clearTimeout(id);
+  }, [normalizedTag, debouncedSearch]);
+
+  const { data, isLoading, isError, error } = useQuery<GetNotesResponse>({
     queryKey: ['notes', page, debouncedSearch, normalizedTag],
-    queryFn: () => clientApi.getNotes({ page, search: debouncedSearch, tag: normalizedTag }),
+    queryFn: () =>
+      clientApi.getNotes({ page, search: debouncedSearch, tag: normalizedTag }),
+    staleTime: 1000 * 60, 
   });
 
   const notes = data?.items ?? [];
@@ -39,7 +47,9 @@ export default function NotesClient({ tag }: NotesClientProps) {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <SearchBox value={search} onChange={setSearch} />
-        <Link href="/notes/action/create">Create note</Link>
+        <Link href="/notes/action/create">
+          <button>Create note</button>
+        </Link>
       </div>
 
       <NoteList notes={notes} />

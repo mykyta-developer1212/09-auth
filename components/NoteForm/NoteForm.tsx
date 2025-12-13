@@ -27,12 +27,11 @@ export default function NoteForm({ note, onSuccess, onCancel }: NoteFormProps) {
 
   const isEditing = Boolean(note);
 
-  // ❌ Прибираємо useEffect та одразу ініціалізуємо локальний стан
   const [localNote, setLocalNote] = useState({
-    id: note?.id || "",
-    title: note?.title || draft.title || "",
-    content: note?.content || draft.content || "",
-    tag: note?.tag || draft.tag || "",
+    id: note?.id ?? "",
+    title: note?.title ?? "",
+    content: note?.content ?? "",
+    tag: note?.tag ?? "",
   });
 
   const createMutation = useMutation({
@@ -44,93 +43,59 @@ export default function NoteForm({ note, onSuccess, onCancel }: NoteFormProps) {
     },
   });
 
-  const updateMutation = useMutation({
-    mutationFn: (payload: { id: string; title: string; content: string; tag: string }) =>
-      clientApi.updateNote(payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notes"] });
-      onSuccess?.();
-    },
-  });
-
   const value = isEditing ? localNote : draft;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (isEditing) {
-      updateMutation.mutate({
-        id: localNote.id,
-        title: localNote.title,
-        content: localNote.content,
-        tag: localNote.tag,
-      });
-    } else {
-      createMutation.mutate(draft);
-    }
+    if (isEditing) return;
+
+    createMutation.mutate({
+      title: draft.title,
+      content: draft.content,
+      tag: draft.tag,
+    });
   };
 
   const handleChange = (field: "title" | "content" | "tag", val: string) => {
     if (isEditing) {
       setLocalNote(prev => ({ ...prev, [field]: val }));
     } else {
-      setDraft({ ...draft, [field]: val });
+      setDraft({
+        title: field === "title" ? val : draft.title,
+        content: field === "content" ? val : draft.content,
+        tag: field === "tag" ? val : draft.tag,
+      });
     }
   };
 
   return (
     <form className={css.form} onSubmit={handleSubmit}>
-      <div className={css.formGroup}>
-        <label htmlFor="title">Title</label>
-        <input
-          id="title"
-          className={css.input}
-          type="text"
-          value={value.title}
-          onChange={(e) => handleChange("title", e.target.value)}
-        />
-      </div>
+      <input
+        value={value.title}
+        onChange={e => handleChange("title", e.target.value)}
+      />
+      <textarea
+        value={value.content}
+        onChange={e => handleChange("content", e.target.value)}
+      />
+      <select
+        value={value.tag}
+        onChange={e => handleChange("tag", e.target.value)}
+      >
+        <option value="">Select tag</option>
+        {TAGS.map(t => (
+          <option key={t} value={t}>{t}</option>
+        ))}
+      </select>
 
-      <div className={css.formGroup}>
-        <label htmlFor="content">Content</label>
-        <textarea
-          id="content"
-          className={css.textarea}
-          value={value.content}
-          onChange={(e) => handleChange("content", e.target.value)}
-        />
-      </div>
+      <button type="submit">
+        {isEditing ? "Update" : "Create"}
+      </button>
 
-      <div className={css.formGroup}>
-        <label htmlFor="tag">Tag</label>
-        <select
-          id="tag"
-          className={css.select}
-          value={value.tag}
-          onChange={(e) => handleChange("tag", e.target.value)}
-        >
-          <option value="">Select tag</option>
-          {TAGS.map((t) => (
-            <option key={t} value={t}>
-              {t}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className={css.actions}>
-        <button type="submit" className={css.submitButton}>
-          {isEditing ? "Update Note" : "Create Note"}
-        </button>
-
-        <button
-          type="button"
-          className={css.cancelButton}
-          onClick={onCancel ?? (() => router.back())}
-        >
-          Cancel
-        </button>
-      </div>
+      <button type="button" onClick={onCancel ?? (() => router.back())}>
+        Cancel
+      </button>
     </form>
   );
 }

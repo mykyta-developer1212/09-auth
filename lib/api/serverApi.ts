@@ -1,10 +1,11 @@
 import { cookies } from 'next/headers';
 import { api } from './api';
+import type { AxiosResponse } from 'axios';
 import type { User } from '@/types/user';
 import type { Note } from '@/types/note';
 
 async function buildCookieHeader() {
-  const cookieStore = await cookies(); 
+  const cookieStore = await cookies();
   const access = cookieStore.get('accessToken')?.value;
   const refresh = cookieStore.get('refreshToken')?.value;
 
@@ -13,40 +14,37 @@ async function buildCookieHeader() {
   return [
     access ? `accessToken=${access}` : null,
     refresh ? `refreshToken=${refresh}` : null,
-  ].filter(Boolean).join('; ');
+  ]
+    .filter(Boolean)
+    .join('; ');
 }
 
 export const serverApi = {
-  getCurrentUser: async (): Promise<User> => {
+  async getCurrentUser(): Promise<User> {
     const cookieHeader = await buildCookieHeader();
 
     const { data } = await api.get<User>('/users/me', {
       headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
-      withCredentials: true,
     });
 
     return data;
   },
 
-  fetchNoteById: async (id: string): Promise<Note> => {
+  async fetchNoteById(id: string): Promise<Note> {
     const cookieHeader = await buildCookieHeader();
 
     const { data } = await api.get<Note>(`/notes/${id}`, {
       headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
-      withCredentials: true,
     });
 
     return data;
   },
 
-  checkSession: async (): Promise<User | null> => {
+  async checkSession(): Promise<AxiosResponse<User | null>> {
     const cookieHeader = await buildCookieHeader();
 
-    const { data } = await api.get<User>('/auth/session', {
+    return api.get<User | null>('/auth/session', {
       headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
-      withCredentials: true,
     });
-
-    return data ?? null;
   },
 };

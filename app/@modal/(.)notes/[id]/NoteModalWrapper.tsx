@@ -11,7 +11,6 @@ export default function NoteModalWrapper() {
   const noteId = searchParams?.get('id');
   const create = searchParams?.get('create');
 
-  // Якщо немає параметрів, не показуємо модалку
   if (!noteId && !create) return null;
 
   const handleClose = () => {

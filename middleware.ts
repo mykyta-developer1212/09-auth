@@ -1,23 +1,23 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export async function middleware(req: NextRequest) {
-  const session = req.cookies.get('session')?.value;
+export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   const isAuthRoute =
     pathname.startsWith('/sign-in') || pathname.startsWith('/sign-up');
 
   const isPrivateRoute =
-    pathname.startsWith('/profile') ||
-    pathname.startsWith('/notes') ||
-    pathname.startsWith('/@modal/notes');
+    pathname.startsWith('/profile') || pathname.startsWith('/notes');
 
-  if (!session && isPrivateRoute) {
+  const hasAuthCookies =
+    req.cookies.has('accessToken') || req.cookies.has('refreshToken');
+
+  if (!hasAuthCookies && isPrivateRoute) {
     return NextResponse.redirect(new URL('/sign-in', req.url));
   }
 
-  if (session && isAuthRoute) {
+  if (hasAuthCookies && isAuthRoute) {
     return NextResponse.redirect(new URL('/profile', req.url));
   }
 
@@ -25,11 +25,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    '/profile/:path*',
-    '/notes/:path*',
-    '/@modal/notes/:path*',
-    '/sign-in',
-    '/sign-up',
-  ],
+  matcher: ['/profile/:path*', '/notes/:path*', '/sign-in', '/sign-up'],
 };
