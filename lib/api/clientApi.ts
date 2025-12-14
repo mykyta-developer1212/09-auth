@@ -19,6 +19,12 @@ export interface CreateNoteParams {
   tag: string;
 }
 
+export interface UpdateUserParams {
+  email?: string;
+  name?: string;
+  avatar?: string;
+}
+
 export const clientApi = {
   async login(email: string, password: string): Promise<User> {
     const { data } = await api.post<User>('/auth/login', { email, password });
@@ -45,6 +51,11 @@ export const clientApi = {
 
   async getCurrentUser(): Promise<User> {
     const { data } = await api.get<User>('/users/me');
+    return data;
+  },
+
+  async updateCurrentUser(payload: UpdateUserParams): Promise<User> {
+    const { data } = await api.patch<User>('/users/me', payload);
     return data;
   },
 
