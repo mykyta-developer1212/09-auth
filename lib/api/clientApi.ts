@@ -9,6 +9,7 @@ export interface GetNotesResponse {
 
 export interface GetNotesParams {
   page?: number;
+  perPage?: number;
   search?: string;
   tag?: string;
 }
@@ -20,9 +21,7 @@ export interface CreateNoteParams {
 }
 
 export interface UpdateUserParams {
-  email?: string;
-  name?: string;
-  avatar?: string;
+  username: string;
 }
 
 export const clientApi = {

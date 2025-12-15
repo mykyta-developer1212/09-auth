@@ -17,27 +17,26 @@ interface NotesClientProps {
 
 export default function NotesClient({ tag }: NotesClientProps) {
   const [search, setSearch] = useState('');
-  const [page, setPage] = useState(1);
-
   const [debouncedSearch, setDebouncedSearch] = useState(search);
-
-  useEffect(() => {
-    const t = setTimeout(() => setDebouncedSearch(search), 500);
-    return () => clearTimeout(t);
-  }, [search]);
-
+  const [page, setPage] = useState(1);
   const normalizedTag = tag?.toLowerCase() === 'all' ? '' : tag;
 
   useEffect(() => {
-    const id = setTimeout(() => setPage(1), 0);
-    return () => clearTimeout(id);
-  }, [normalizedTag, debouncedSearch]);
+    const timeout = setTimeout(() => setDebouncedSearch(search), 500);
+    return () => clearTimeout(timeout);
+  }, [search]);
+
+  useEffect(() => {
+    const t = setTimeout(() => setPage(1), 0);
+    return () => clearTimeout(t);
+  }, [tag, debouncedSearch]);
 
   const { data, isLoading, isError, error } = useQuery<GetNotesResponse>({
     queryKey: ['notes', page, debouncedSearch, normalizedTag],
     queryFn: () =>
       clientApi.getNotes({
         page,
+        perPage: 12,
         search: debouncedSearch,
         tag: normalizedTag,
       }),
@@ -48,7 +47,7 @@ export default function NotesClient({ tag }: NotesClientProps) {
   const totalPages = data?.totalPages ?? 1;
 
   if (isLoading) return <p>Loading notes...</p>;
-  if (isError) return <p>Error loading notes: {error?.message}</p>;
+  if (isError) return <p>Error loading notes: {error instanceof Error ? error.message : 'Unknown error'}</p>;
 
   return (
     <div>
@@ -57,14 +56,15 @@ export default function NotesClient({ tag }: NotesClientProps) {
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: '5px', 
+          marginBottom: '10px',
         }}
       >
         <SearchBox value={search} onChange={setSearch} />
 
         <Link
           href="/notes/action/create"
-          className={noteFormStyles.submitButton} 
+          className={noteFormStyles.submitButton}
+          style={{ textDecoration: 'none', fontWeight: 500, fontFamily: 'inherit' }}
         >
           Create note
         </Link>

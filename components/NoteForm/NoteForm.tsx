@@ -7,7 +7,9 @@ import { useDraftStore } from '@/lib/draftStore';
 import cssForm from './NoteForm.module.css';
 import cssPage from '@/app/(private routes)/notes/action/create/CreateNote.module.css';
 
-const TAGS = ['Todo', 'Work', 'Personal', 'Meeting', 'Shopping'];
+const TAGS = ['Todo', 'Work', 'Personal', 'Meeting', 'Shopping'] as const; 
+
+type NoteTag = (typeof TAGS)[number]; 
 
 interface NoteFormProps {
   onSuccess?: () => void;
@@ -31,7 +33,14 @@ export default function NoteForm({ onSuccess, onCancel }: NoteFormProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    mutation.mutate(draft);
+
+    const payload = {
+      title: draft.title,
+      content: draft.content,
+      tag: (draft.tag || 'Todo') as NoteTag, 
+    };
+
+    mutation.mutate(payload);
   };
 
   return (
@@ -42,7 +51,7 @@ export default function NoteForm({ onSuccess, onCancel }: NoteFormProps) {
           <input
             className={cssForm.input}
             value={draft.title}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDraft({ ...draft, title: e.target.value })}
+            onChange={(e) => setDraft({ ...draft, title: e.target.value })}
             placeholder="Title"
             required
           />
@@ -50,7 +59,7 @@ export default function NoteForm({ onSuccess, onCancel }: NoteFormProps) {
           <textarea
             className={cssForm.textarea}
             value={draft.content}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setDraft({ ...draft, content: e.target.value })}
+            onChange={(e) => setDraft({ ...draft, content: e.target.value })}
             placeholder="Content"
             required
           />
@@ -58,11 +67,13 @@ export default function NoteForm({ onSuccess, onCancel }: NoteFormProps) {
           <select
             className={cssForm.select}
             value={draft.tag}
-            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setDraft({ ...draft, tag: e.target.value })}
+            onChange={(e) => setDraft({ ...draft, tag: e.target.value })}
           >
             <option value="">Select tag</option>
             {TAGS.map((tag) => (
-              <option key={tag} value={tag}>{tag}</option>
+              <option key={tag} value={tag}>
+                {tag}
+              </option>
             ))}
           </select>
 

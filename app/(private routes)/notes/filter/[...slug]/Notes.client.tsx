@@ -18,7 +18,6 @@ interface NotesClientProps {
 export default function NotesClient({ tag }: NotesClientProps) {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
-
   const [debouncedSearch, setDebouncedSearch] = useState(search);
 
   useEffect(() => {
@@ -38,10 +37,10 @@ export default function NotesClient({ tag }: NotesClientProps) {
     queryFn: () =>
       clientApi.getNotes({
         page,
+        perPage: 12,
         search: debouncedSearch,
         tag: normalizedTag,
       }),
-    staleTime: 1000 * 60,
   });
 
   const notes = data?.items ?? [];
@@ -56,10 +55,8 @@ export default function NotesClient({ tag }: NotesClientProps) {
         style={{
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center',
-          position: 'relative', 
-          top: '6px',
-          left: '-6px',
+          alignItems: 'center', 
+          marginBottom: '16px', 
         }}
       >
         <SearchBox value={search} onChange={setSearch} />
@@ -76,11 +73,13 @@ export default function NotesClient({ tag }: NotesClientProps) {
       <NoteList notes={notes} />
 
       {totalPages > 1 && (
+        <div style={{ marginTop: '50px' }}>
           <Pagination
             pageCount={totalPages}
             currentPage={page}
             onPageChange={setPage}
           />
+        </div>
       )}
     </div>
   );

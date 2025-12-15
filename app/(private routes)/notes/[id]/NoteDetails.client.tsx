@@ -3,6 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { clientApi } from '@/lib/api/clientApi';
 import type { Note } from '@/types/note';
+import styles from './NoteDetails.module.css';
 
 interface NoteDetailsProps {
   noteId: string;
@@ -14,14 +15,14 @@ export default function NoteDetailsClient({ noteId }: NoteDetailsProps) {
     queryFn: () => clientApi.getNoteById(noteId),
   });
 
-  if (isLoading) return <p>Loading...</p>;
+  if (isLoading) return <p>Loading note...</p>;
   if (isError || !note) return <p>Note not found</p>;
 
   return (
-    <div>
-      <h2>{note.title}</h2>
-      <p>{note.content}</p>
-      <span>{note.tag}</span>
+    <div className={styles.card}>
+      <h2 className={styles.title}>{note.title}</h2>
+      <p className={styles.content}>{note.content}</p>
+      <span className={styles.tag}>{note.tag}</span>
     </div>
   );
 }
