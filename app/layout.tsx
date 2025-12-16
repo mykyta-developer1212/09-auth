@@ -2,11 +2,11 @@ import './globals.css';
 import TanStackProvider from '@/components/TanStackProvider/TanStackProvider';
 import AuthProvider from '@/components/AuthProvider/AuthProvider';
 import Header from '@/components/Header/Header';
-import Footer from '@/components/Footer/Footer'; 
+import Footer from '@/components/Footer/Footer';
 
 export default function RootLayout({
   children,
-  modal, 
+  modal,
 }: {
   children: React.ReactNode;
   modal?: React.ReactNode;
@@ -17,8 +17,10 @@ export default function RootLayout({
         <TanStackProvider>
           <AuthProvider>
             <Header />
-            <main>{children}</main>
-            {modal && <div id="modal">{modal}</div>}
+            <main>
+              {children}
+              {modal}
+            </main>
             <Footer />
           </AuthProvider>
         </TanStackProvider>

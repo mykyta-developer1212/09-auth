@@ -3,6 +3,7 @@
 import { Note } from '@/types/note';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { clientApi } from '@/lib/api/clientApi';
+import Link from 'next/link';
 import styles from './NoteList.module.css';
 
 interface NoteListProps {
@@ -25,14 +26,26 @@ export default function NoteList({ notes }: NoteListProps) {
         <li key={note.id} className={styles.listItem}>
           <h3 className={styles.title}>{note.title}</h3>
           <p className={styles.content}>{note.content}</p>
-          <span className={styles.tag}>{note.tag}</span>
+
           <div className={styles.footer}>
+            <div className={styles.left}>
+              <span className={styles.tag}>{note.tag}</span>
+
+              <Link
+                href={`/notes/${note.id}`}
+                scroll={false}
+                className={styles.view}
+              >
+                View details
+              </Link>
+            </div>
+
             <button
               onClick={() => deleteMutation.mutate(note.id)}
-              disabled={deleteMutation.status === 'pending'}
+              disabled={deleteMutation.isPending}
               className={styles.button}
             >
-              {deleteMutation.status === 'pending' ? 'Deleting...' : 'Delete'}
+              {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
             </button>
           </div>
         </li>

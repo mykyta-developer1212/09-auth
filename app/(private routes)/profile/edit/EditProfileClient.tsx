@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { clientApi } from '@/lib/api/clientApi';
+import { useAuthStore } from '@/lib/store/authStore';
 import type { User } from '@/types/user';
 import styles from './EditProfile.module.css';
 
@@ -13,6 +14,8 @@ interface EditProfileProps {
 
 export default function EditProfileClient({ user }: EditProfileProps) {
   const router = useRouter();
+  const setUser = useAuthStore((s) => s.setUser);
+
   const [username, setUsername] = useState(user.username);
   const [loading, setLoading] = useState(false);
 
@@ -22,7 +25,8 @@ export default function EditProfileClient({ user }: EditProfileProps) {
 
     setLoading(true);
     try {
-      await clientApi.updateCurrentUser({ username: username.trim() });
+      const updatedUser = await clientApi.updateCurrentUser({ username: username.trim() });
+      setUser(updatedUser); 
       router.push('/profile');
     } catch (err) {
       console.error('Update profile error', err);

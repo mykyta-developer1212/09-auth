@@ -43,7 +43,7 @@ export default function NotesClient({ tag }: NotesClientProps) {
     staleTime: 1000 * 60,
   });
 
-  const notes = data?.items ?? [];
+  const notes = data?.notes ?? [];
   const totalPages = data?.totalPages ?? 1;
 
   if (isLoading) return <p>Loading notes...</p>;

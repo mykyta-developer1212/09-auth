@@ -43,7 +43,7 @@ export default function NotesClient({ tag }: NotesClientProps) {
       }),
   });
 
-  const notes = data?.items ?? [];
+  const notes = data?.notes ?? [];
   const totalPages = data?.totalPages ?? 1;
 
   if (isLoading) return <p>Loading notes...</p>;
@@ -57,6 +57,8 @@ export default function NotesClient({ tag }: NotesClientProps) {
           justifyContent: 'space-between',
           alignItems: 'center', 
           marginBottom: '16px', 
+          position: 'relative',
+          top: '6px',
         }}
       >
         <SearchBox value={search} onChange={setSearch} />
@@ -70,10 +72,8 @@ export default function NotesClient({ tag }: NotesClientProps) {
         </Link>
       </div>
 
-      <NoteList notes={notes} />
-
       {totalPages > 1 && (
-        <div style={{ marginTop: '50px' }}>
+        <div style={{ marginBottom: '16px' }}>
           <Pagination
             pageCount={totalPages}
             currentPage={page}
@@ -81,6 +81,8 @@ export default function NotesClient({ tag }: NotesClientProps) {
           />
         </div>
       )}
+
+      <NoteList notes={notes} />
     </div>
   );
 }

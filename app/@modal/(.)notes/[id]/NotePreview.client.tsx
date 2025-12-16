@@ -5,13 +5,13 @@ import { useQuery } from '@tanstack/react-query';
 import { clientApi } from '@/lib/api/clientApi';
 import Modal from '@/components/Modal/Modal';
 import type { Note } from '@/types/note';
+import styles from '@/components/NoteList/NoteList.module.css';
 
-interface NotePreviewProps {
+interface Props {
   noteId: string;
-  onClose?: () => void; 
 }
 
-export default function NotePreviewClient({ noteId, onClose }: NotePreviewProps) {
+export default function NotePreviewClient({ noteId }: Props) {
   const router = useRouter();
 
   const { data: note, isLoading, isError } = useQuery<Note>({
@@ -19,18 +19,23 @@ export default function NotePreviewClient({ noteId, onClose }: NotePreviewProps)
     queryFn: () => clientApi.getNoteById(noteId),
   });
 
-  if (isLoading) return <p>Loading...</p>;
-  if (isError || !note) return <p>Note not found</p>;
+  if (isLoading) return null;
+  if (isError || !note) return null;
 
-  const handleClose = onClose ?? (() => router.back());
+  const formattedDate = new Date(note.createdAt).toLocaleString();
 
   return (
-    <Modal onClose={handleClose}>
-      <h2>{note.title}</h2>
-      <p>{note.content}</p>
-      <p>{note.tag}</p>
-
-      <button onClick={handleClose}>Close</button>
+    <Modal>
+      <h2 className={styles.title}>{note.title}</h2>
+      <p className={styles.content}>{note.content}</p>
+      <p className={styles.content}>{note.tag}</p>
+      <p className={styles.content}>Created at: {formattedDate}</p>
+      <button
+        className={styles.button}
+        onClick={() => router.back()}
+      >
+        Close
+      </button>
     </Modal>
   );
 }
