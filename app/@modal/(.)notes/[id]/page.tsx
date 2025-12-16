@@ -9,7 +9,7 @@ interface PageProps {
 }
 
 export default async function NoteModalPage({ params }: PageProps) {
-  const { id } = await params; 
+  const { id } = await params;
 
   if (!id) notFound();
 
@@ -20,9 +20,11 @@ export default async function NoteModalPage({ params }: PageProps) {
     queryFn: () => serverApi.fetchNoteById(id),
   });
 
+  const handleClose = () => {};
+
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <NotePreviewClient noteId={id} />
+      <NotePreviewClient noteId={id} onClose={handleClose} />
     </HydrationBoundary>
   );
 }

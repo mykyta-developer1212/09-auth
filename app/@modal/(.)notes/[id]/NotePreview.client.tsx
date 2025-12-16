@@ -1,6 +1,5 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { clientApi } from '@/lib/api/clientApi';
 import Modal from '@/components/Modal/Modal';
@@ -9,11 +8,10 @@ import styles from '@/components/NoteList/NoteList.module.css';
 
 interface Props {
   noteId: string;
+  onClose: () => void;
 }
 
-export default function NotePreviewClient({ noteId }: Props) {
-  const router = useRouter();
-
+export default function NotePreviewClient({ noteId, onClose }: Props) {
   const { data: note, isLoading, isError } = useQuery<Note>({
     queryKey: ['note', noteId],
     queryFn: () => clientApi.getNoteById(noteId),
@@ -32,7 +30,7 @@ export default function NotePreviewClient({ noteId }: Props) {
       <p className={styles.content}>Created at: {formattedDate}</p>
       <button
         className={styles.button}
-        onClick={() => router.back()}
+        onClick={onClose} 
       >
         Close
       </button>

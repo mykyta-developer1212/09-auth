@@ -16,7 +16,7 @@ export default function NoteModalWrapper() {
   const handleClose = () => router.back();
 
   if (noteId) {
-    return <NotePreviewClient noteId={noteId}/>;
+    return <NotePreviewClient noteId={noteId} onClose={handleClose} />;
   }
 
   if (create) {
