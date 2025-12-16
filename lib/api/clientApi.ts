@@ -3,7 +3,7 @@ import type { User } from '@/types/user';
 import type { Note } from '@/types/note';
 
 export interface GetNotesResponse {
-  items: Note[];
+  notes: Note[];      
   totalPages: number;
 }
 
