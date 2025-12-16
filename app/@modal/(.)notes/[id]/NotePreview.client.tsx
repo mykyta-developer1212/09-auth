@@ -12,13 +12,12 @@ interface Props {
 }
 
 export default function NotePreviewClient({ noteId, onClose }: Props) {
-  const { data: note, isLoading, isError } = useQuery<Note>({
+  const { data: note, isLoading } = useQuery<Note>({
     queryKey: ['note', noteId],
     queryFn: () => clientApi.getNoteById(noteId),
   });
 
-  if (isLoading) return null;
-  if (isError || !note) return null;
+  if (isLoading || !note) return null;
 
   const formattedDate = new Date(note.createdAt).toLocaleString();
 
@@ -28,12 +27,7 @@ export default function NotePreviewClient({ noteId, onClose }: Props) {
       <p className={styles.content}>{note.content}</p>
       <p className={styles.content}>{note.tag}</p>
       <p className={styles.content}>Created at: {formattedDate}</p>
-      <button
-        className={styles.button}
-        onClick={onClose} 
-      >
-        Close
-      </button>
+      <button className={styles.button} onClick={onClose}>Close</button>
     </Modal>
   );
 }

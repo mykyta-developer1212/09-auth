@@ -29,7 +29,7 @@ export default function NotesClient({ tag }: NotesClientProps) {
   useEffect(() => {
     const t = setTimeout(() => setPage(1), 0);
     return () => clearTimeout(t);
-  }, [tag, debouncedSearch]);
+  }, [normalizedTag, debouncedSearch]);
 
   const { data, isLoading, isError, error } = useQuery<GetNotesResponse>({
     queryKey: ['notes', page, debouncedSearch, normalizedTag],
@@ -47,7 +47,13 @@ export default function NotesClient({ tag }: NotesClientProps) {
   const totalPages = data?.totalPages ?? 1;
 
   if (isLoading) return <p>Loading notes...</p>;
-  if (isError) return <p>Error loading notes: {error instanceof Error ? error.message : 'Unknown error'}</p>;
+  if (isError)
+    return (
+      <p>
+        Error loading notes:{' '}
+        {error instanceof Error ? error.message : 'Unknown error'}
+      </p>
+    );
 
   return (
     <div>
@@ -73,11 +79,7 @@ export default function NotesClient({ tag }: NotesClientProps) {
       <NoteList notes={notes} />
 
       {totalPages > 1 && (
-        <Pagination
-          pageCount={totalPages}
-          currentPage={page}
-          onPageChange={setPage}
-        />
+        <Pagination pageCount={totalPages} currentPage={page} onPageChange={setPage} />
       )}
     </div>
   );

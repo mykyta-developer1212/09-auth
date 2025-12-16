@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import NoteForm from "@/components/NoteForm/NoteForm";
+import NoteForm from '@/components/NoteForm/NoteForm';
 
 interface NoteCreateProps {
   onClose?: () => void;

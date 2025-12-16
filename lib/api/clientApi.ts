@@ -1,9 +1,9 @@
-import { api } from './api';
+import { api } from './api'; 
 import type { User } from '@/types/user';
 import type { Note } from '@/types/note';
 
 export interface GetNotesResponse {
-  notes: Note[];       
+  notes: Note[];
   totalPages: number;
 }
 
@@ -26,22 +26,22 @@ export interface UpdateUserParams {
 
 export const clientApi = {
   async login(email: string, password: string): Promise<User> {
-    const { data } = await api.post<User>('/api/auth/login', { email, password });
+    const { data } = await api.post<User>('/auth/login', { email, password }, { withCredentials: true });
     return data;
   },
 
   async register(email: string, password: string): Promise<User> {
-    const { data } = await api.post<User>('/api/auth/register', { email, password });
+    const { data } = await api.post<User>('/auth/register', { email, password }, { withCredentials: true });
     return data;
   },
 
   async logout(): Promise<void> {
-    await api.post('/api/auth/logout');
+    await api.post('/auth/logout', {}, { withCredentials: true });
   },
 
   async checkSession(): Promise<User | null> {
     try {
-      const { data } = await api.get<User>('/api/auth/session');
+      const { data } = await api.get<User>('/auth/session', { withCredentials: true });
       return data;
     } catch {
       return null;
@@ -49,32 +49,35 @@ export const clientApi = {
   },
 
   async getCurrentUser(): Promise<User> {
-    const { data } = await api.get<User>('/api/users/me');
+    const { data } = await api.get<User>('/users/me', { withCredentials: true });
     return data;
   },
 
   async updateCurrentUser(payload: UpdateUserParams): Promise<User> {
-    const { data } = await api.patch<User>('/api/users/me', payload);
+    const { data } = await api.patch<User>('/users/me', payload, { withCredentials: true });
     return data;
   },
 
   async getNotes(params?: GetNotesParams): Promise<GetNotesResponse> {
-    const { data } = await api.get<GetNotesResponse>('/api/notes', { params });
-    return data;
+    const { data } = await api.get<GetNotesResponse>('/notes', { params, withCredentials: true });
+    return {
+      notes: data?.notes ?? [],
+      totalPages: data?.totalPages ?? 1,
+    };
   },
 
   async getNoteById(id: string): Promise<Note> {
-    const { data } = await api.get<Note>(`/api/notes/${id}`);
+    const { data } = await api.get<Note>(`/notes/${id}`, { withCredentials: true });
     return data;
   },
 
   async createNote(payload: CreateNoteParams): Promise<Note> {
-    const { data } = await api.post<Note>('/api/notes', payload);
+    const { data } = await api.post<Note>('/notes', payload, { withCredentials: true });
     return data;
   },
 
   async deleteNote(id: string): Promise<Note> {
-    const { data } = await api.delete<Note>(`/api/notes/${id}`);
+    const { data } = await api.delete<Note>(`/notes/${id}`, { withCredentials: true });
     return data;
   },
 };
