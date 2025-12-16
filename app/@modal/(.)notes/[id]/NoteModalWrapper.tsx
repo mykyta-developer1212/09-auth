@@ -1,22 +1,27 @@
 'use client';
 
+import { useSearchParams, useRouter } from 'next/navigation';
 import NotePreviewClient from './NotePreview.client';
 import NoteCreateClient from './create/NoteCreate.client';
-import { usePathname } from 'next/navigation';
 
 export default function NoteModalWrapper() {
-  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
-  const pathParts = pathname.split('/');
-  const noteId = pathParts[pathParts.length - 1]; 
-  const create = pathname.includes('create');
+  const noteId = searchParams.get('id');
+  const create = searchParams.get('create');
 
   if (!noteId && !create) return null;
 
-  const handleClose = () => history.back();
+  const handleClose = () => router.back();
 
-  if (noteId && !create) return <NotePreviewClient noteId={noteId} onClose={handleClose} />;
-  if (create) return <NoteCreateClient onClose={handleClose} />;
+  if (noteId) {
+    return <NotePreviewClient noteId={noteId}/>;
+  }
+
+  if (create) {
+    return <NoteCreateClient onClose={handleClose} />;
+  }
 
   return null;
 }

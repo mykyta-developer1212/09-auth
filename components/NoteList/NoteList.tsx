@@ -30,8 +30,9 @@ export default function NoteList({ notes }: NoteListProps) {
           <div className={styles.footer}>
             <div className={styles.left}>
               <span className={styles.tag}>{note.tag}</span>
+
               <Link
-                href={`/@modal/notes/${note.id}`}
+                href={`/notes/${note.id}`}
                 scroll={false}
                 className={styles.view}
               >
